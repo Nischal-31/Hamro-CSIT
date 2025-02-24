@@ -40,8 +40,35 @@ INSTALLED_APPS = [
     'user',
     'crispy_forms',
     'crispy_bootstrap5',
+    
+    'django.contrib.sites',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.google',
 ]
 
+SITE_ID = 3
+
+
+AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.ModelBackend',  # Default backend
+    'allauth.account.auth_backends.AuthenticationBackend',  # Allauth backend for social login
+)
+
+SOCIALACCOUNT_PROVIDERS = {
+    #'client_id': '695299161291-khcd5tp25h7vnihifc3b44urbaii2o78.apps.googleusercontent.com',
+    #'secret': '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',
+    'google': {
+        'SCOPE': [
+            'profile',
+            'email',
+        ],
+        'AUTH_PARAMS': {
+            'access_type': 'online',
+        },
+    }
+}
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -50,6 +77,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    
+    'allauth.account.middleware.AccountMiddleware',
 ]
 
 ROOT_URLCONF = 'hamrocsit.urls'
@@ -65,6 +94,8 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                
+                'django.template.context_processors.request',
             ],
         },
     },
@@ -138,4 +169,8 @@ EMAIL_USE_TLS=True
 EMAIL_HOST_USER="xenobaka2@gmail.com"
 EMAIL_HOST_PASSWORD="qyypewdhzscwygze"
 
+LOGIN_REDIRECT_URL = 'index' 
 LOGOUT_REDIRECT_URL = 'index'  
+ACCOUNT_LOGOUT_REDIRECT_URL = 'account_login'
+
+SOCIALACCOUNT_LOGIN_ON_GET = True

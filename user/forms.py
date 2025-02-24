@@ -11,6 +11,7 @@ class UserRegisterForm(UserCreationForm):
     last_name = forms.CharField(max_length=20)
     terms_agree = forms.BooleanField(required=True, label="I Agree to Terms and Conditions")
     remember_me = forms.BooleanField(required=False, label="Remember Me")
+    
 
     class Meta:
         model = User

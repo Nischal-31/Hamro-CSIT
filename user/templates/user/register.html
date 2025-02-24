@@ -1,4 +1,7 @@
 {% load crispy_forms_tags %}
+{% load socialaccount %}
+
+{% block title %}Sign Up{% endblock title %}
 {% block content %}
 
 <!DOCTYPE html>
@@ -34,7 +37,7 @@
                     <div class="text-center text-muted text-uppercase mb-2">or</div>
 
                     <!-- Google Sign-In -->
-                    <a href="#" class="btn btn-light login_with w-100 mb-4">
+                    <a href="{% provider_login_url 'google' %}" class="btn btn-light login_with w-100 mb-4">
                         <img decoding="async" src="/static/images/google.png" class="img-fluid me-3">
                         Sign in with Google
                     </a>
