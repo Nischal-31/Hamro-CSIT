@@ -7,6 +7,8 @@ urlpatterns = [
 	path('admin/', admin.site.urls),
 
     path('accounts/', include('allauth.urls')),
+    path('courses/', include('courses.urls')),
+    
 	##### user related path########################## 
 	path('', include('user.urls')),
 	path('login/', user_view.Login, name ='login'),

@@ -4,6 +4,13 @@ from . import views
 urlpatterns = [
     # API Overview
     path('', views.apiOverview, name="api-overview"),
+    
+    # Semester URLs
+    path('semester-list/', views.semesterList, name="semester-list"),
+    path('semester-detail/<str:pk>/', views.semesterDetail, name="semester-detail"),
+    path('semester-create/', views.semesterCreate, name="semester-create"),
+    path('semester-update/<str:pk>/', views.semesterUpdate, name="semester-update"),
+    path('semester-delete/<str:pk>/', views.semesterDelete, name="semester-delete"),
 
     # Subject URLs
     path('subject-list/', views.subjectList, name="subject-list"),
@@ -12,12 +19,6 @@ urlpatterns = [
     path('subject-update/<str:pk>/', views.subjectUpdate, name="subject-update"),
     path('subject-delete/<str:pk>/', views.subjectDelete, name="subject-delete"),
 
-    # Semester URLs
-    path('semester-list/', views.semesterList, name="semester-list"),
-    path('semester-detail/<str:pk>/', views.semesterDetail, name="semester-detail"),
-    path('semester-create/', views.semesterCreate, name="semester-create"),
-    path('semester-update/<str:pk>/', views.semesterUpdate, name="semester-update"),
-    path('semester-delete/<str:pk>/', views.semesterDelete, name="semester-delete"),
 
     # Syllabus URLs
     path('syllabus-list/', views.syllabusList, name="syllabus-list"),

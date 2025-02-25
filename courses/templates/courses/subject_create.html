@@ -1,0 +1,20 @@
+{% block content %}
+<h2>Create New Subject</h2>
+
+<form method="POST" action="{% url 'subject-create' %}">
+    {% csrf_token %}
+    
+    <label for="name">Subject Name:</label>
+    <input type="text" name="name" required>
+    
+    <label for="code">Subject Code:</label>
+    <input type="text" name="code" required>
+
+    <label for="semester">Semester:</label>
+    <input type="number" name="semester" required>
+
+    <button type="submit">Create Subject</button>
+</form>
+
+<a href="{% url 'subject-list' %}">Back to Subject List</a>
+{% endblock %}

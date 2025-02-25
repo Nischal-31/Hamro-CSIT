@@ -1,0 +1,21 @@
+{% block content %}
+<h2>Update Subject</h2>
+
+<form method="POST" action="{% url 'subject-update' subject.id %}">
+    {% csrf_token %}
+    
+    <label for="name">Subject Name:</label>
+    <input type="text" name="name" value="{{ subject.name }}" required>
+
+    <label for="code">Subject Code:</label>
+    <input type="text" name="code" value="{{ subject.code }}" required>
+
+    <label for="semester">Semester:</label>
+    <input type="number" name="semester" value="{{ subject.semester }}" required>
+
+    <button type="submit">Update Subject</button>
+</form>
+
+<a href="{% url 'subject-list' %}">Back to Subject List</a>
+{% endblock %}
+

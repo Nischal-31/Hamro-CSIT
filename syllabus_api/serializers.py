@@ -9,7 +9,8 @@ class SemesterSerializer(serializers.ModelSerializer):
 class SubjectSerializer(serializers.ModelSerializer):
     class Meta:
         model = Subject
-        fields = '__all__'
+        fields = ['id', 'semester', 'name', 'code', 'credits', 'description']
+
              
 class SyllabusSerializer(serializers.ModelSerializer):
     class Meta: 

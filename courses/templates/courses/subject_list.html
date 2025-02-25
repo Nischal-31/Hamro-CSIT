@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Subject List</title>
+</head>
+<body>
+    <h1>Subjects</h1>
+    
+    {% if subjects %}
+        <ul>
+            {% for subject in subjects %}
+                <li>
+                    <!-- Ensure we're passing the correct 'id' to the URL -->
+                    <a href="{% url 'subject-detail' pk=subject.id %}">{{ subject.name }}</a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No subjects available.</p>
+    {% endif %}
+</body>
+</html>
+
