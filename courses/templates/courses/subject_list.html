@@ -1,9 +1,6 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Subject List</title>
-</head>
-<body>
+{% extends "user/base.html" %}
+{% block content %}
+
     <h1>Subjects</h1>
     
     <ul>
@@ -20,6 +17,6 @@
         {% endfor %}
     </ul>
     
-</body>
-</html>
+    <a href="{% url 'subject-create' %}">Create New Subject</a>
 
+{% endblock %}
