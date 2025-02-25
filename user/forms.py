@@ -1,5 +1,5 @@
 from django import forms
-from django.contrib.auth.models import User
+from .models import CustomUser  # Import your custom user model
 from django.contrib.auth.forms import UserCreationForm
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Submit, Row, Column, Field
@@ -12,9 +12,8 @@ class UserRegisterForm(UserCreationForm):
     terms_agree = forms.BooleanField(required=True, label="I Agree to Terms and Conditions")
     remember_me = forms.BooleanField(required=False, label="Remember Me")
     
-
     class Meta:
-        model = User
+        model = CustomUser  # Make sure to point to your custom user model
         fields = ['username', 'email', 'phone_no', 'first_name', 'last_name', 'password1', 'password2']
 
     def __init__(self, *args, **kwargs):

@@ -13,4 +13,5 @@ urlpatterns = [
     path('logout/', user_view.logout_view, name='logout'),
 	path('register/', user_view.register, name ='register'),
 
+    path('syllabus_api/', include('syllabus_api.urls')),
 ]

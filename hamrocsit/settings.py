@@ -37,7 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'user',
+
     'crispy_forms',
     'crispy_bootstrap5',
     
@@ -46,9 +46,15 @@ INSTALLED_APPS = [
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
+    
+    'rest_framework',
+    
+    'user',
+    'syllabus_api',
+        
 ]
 
-SITE_ID = 3
+SITE_ID = 4
 
 
 AUTHENTICATION_BACKENDS = (
@@ -146,6 +152,8 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
+
+AUTH_USER_MODEL = 'user.CustomUser'
 
 STATIC_URL = 'static/'
 
