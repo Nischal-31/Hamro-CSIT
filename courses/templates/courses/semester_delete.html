@@ -1,0 +1,16 @@
+
+{% block content %}
+<h2>Are you sure you want to delete this semester?</h2>
+
+<form method="POST">
+    {% csrf_token %}
+    <button type="submit">Yes, Delete</button>
+    <a href="{% url 'semester-list' %}">Cancel</a>
+</form>
+
+<h3>Semester Details:</h3>
+<p><strong>Semester Number:</strong> {{ semester.number }}</p>
+<p><strong>Description:</strong> {{ semester.description }}</p>
+
+
+{% endblock %}

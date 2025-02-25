@@ -51,12 +51,6 @@ def apiOverview(request):
 
 #-------------------------SEMESTER-----------------------------------
 
-class SemesterPagination(PageNumberPagination):
-    page_size = 10  # Customize the number of semesters per page
-    page_size_query_param = 'page_size'  # Allow overriding with query param
-    max_page_size = 100  # Limit the max page size
-
-
 @api_view(['POST'])
 def semesterCreate(request):
     serializer = SemesterSerializer(data=request.data)
@@ -69,15 +63,9 @@ def semesterCreate(request):
 
 @api_view(['GET'])
 def semesterList(request):
-    semesters = Semester.objects.all()
-    
-    # Paginate the results
-    paginator = SemesterPagination()
-    result_page = paginator.paginate_queryset(semesters, request)
-    serializer = SemesterSerializer(result_page, many=True)
-    
-    # Return paginated data with a URL for the next page
-    return paginator.get_paginated_response(serializer.data)
+    semesters = Semester.objects.all().order_by('id')  # Ensure queryset is ordered
+    serializer = SemesterSerializer(semesters, many=True)
+    return Response(serializer.data)
 
 @api_view(['GET'])
 def semesterDetail(request, pk):
@@ -93,17 +81,31 @@ def semesterDetail(request, pk):
 @api_view(['POST'])
 def semesterUpdate(request, pk):
     try:
+        # Fetch the semester object
         semester = Semester.objects.get(id=pk)
     except Semester.DoesNotExist:
         return Response({'error': 'Semester not found'}, status=status.HTTP_404_NOT_FOUND)
-    
-    serializer = SemesterSerializer(instance=semester, data=request.data)
-    
-    if serializer.is_valid():
-        serializer.save()
-        return Response(serializer.data)
-    
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    # Get updated fields from the request data
+    number = request.data.get("number")
+    description = request.data.get("description")
+
+    # Update the semester fields
+    if number:
+        semester.number = number
+    if description:
+        semester.description = description
+
+    # Save the changes
+    try:
+        semester.save()
+    except Exception as e:
+        return Response({'error': f"Failed to update semester: {str(e)}"}, status=status.HTTP_400_BAD_REQUEST)
+
+    # Return the updated data
+    serializer = SemesterSerializer(semester)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
 
 @api_view(['DELETE'])
 def semesterDelete(request, pk):
@@ -145,23 +147,13 @@ def subjectCreate(request):
     
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
  
-    
-class SubjectPagination(PageNumberPagination):
-    page_size = 10  # Customize the number of subjects per page
-    page_size_query_param = 'page_size'  # Allow overriding with query param
-    max_page_size = 100  # Limit the max page size
 
 @api_view(['GET'])
 def subjectList(request):
-    subjects = Subject.objects.all()
-    
-    # Paginate the results
-    paginator = SubjectPagination()
-    result_page = paginator.paginate_queryset(subjects, request)
-    serializer = SubjectSerializer(result_page, many=True)
-    
-    # Return paginated data with a URL for the next page
-    return paginator.get_paginated_response(serializer.data)
+    subjects = Subject.objects.all().order_by('id')  # Ensure queryset is ordered
+    serializer = SubjectSerializer(subjects, many=True)
+    return Response(serializer.data)
+
 
 @api_view(['GET'])
 def subjectDetail(request,pk):
@@ -210,23 +202,12 @@ def syllabusCreate(request):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-
-class SyllabusPagination(PageNumberPagination):
-    page_size = 10  # Customize the number of syllabuses per page
-    page_size_query_param = 'page_size'  # Allow overriding with query param
-    max_page_size = 100  # Limit the max page size
-
 @api_view(['GET'])
 def syllabusList(request):
-    syllabuses = Syllabus.objects.all()
-    
-    # Paginate the results
-    paginator = SyllabusPagination()
-    result_page = paginator.paginate_queryset(syllabuses, request)
-    serializer = SyllabusSerializer(result_page, many=True)
-    
-    # Return paginated data with a URL for the next page
-    return paginator.get_paginated_response(serializer.data)
+    syllabuses = Syllabus.objects.all().order_by('id')
+    serializer = SyllabusSerializer(syllabuses, many=True)
+
+    return Response(serializer.data)
 
 
 @api_view(['GET'])
@@ -278,22 +259,12 @@ def chapterCreate(request):
     
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-class ChapterPagination(PageNumberPagination):
-    page_size = 10  # Customize the number of chapters per page
-    page_size_query_param = 'page_size'  # Allow overriding with query param
-    max_page_size = 100  # Limit the max page size
-
 @api_view(['GET'])
 def chapterList(request):
-    chapters = Chapter.objects.all()
-    
-    # Paginate the results
-    paginator = ChapterPagination()
-    result_page = paginator.paginate_queryset(chapters, request)
-    serializer = ChapterSerializer(result_page, many=True)
-    
-    # Return paginated data with a URL for the next page
-    return paginator.get_paginated_response(serializer.data)
+    chapters = Chapter.objects.all().order_by('id')
+    serializer = ChapterSerializer(chapters, many=True)
+
+    return Response(serializer.data)
 
 
 @api_view(['GET'])

@@ -1,0 +1,11 @@
+{% block content %}
+<h2>Semester Details</h2>
+
+<p><strong>Number:</strong> {{ semester.number }}</p>
+<p><strong>Description:</strong> {{ semester.description }}</p>
+
+<a href="{% url 'semester-update' pk=semester.id %}">Update</a>
+<a href="{% url 'semester-delete' pk=semester.id %}">Delete</a>
+<a href="{% url 'semester-list' %}">Back to List</a>
+
+{% endblock %}

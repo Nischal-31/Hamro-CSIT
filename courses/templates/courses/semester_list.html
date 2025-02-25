@@ -1,0 +1,20 @@
+{% block content %}
+<h2>Semester List</h2>
+
+<ul>
+    {% for semester in semesters %}
+    <li> 
+        {{ semester.number }}<br>
+        {{ semester.description }}<br>
+        <a href="{% url 'semester-detail' pk=semester.id %}">Detail</a>
+        <a href="{% url 'semester-delete' pk=semester.id %}">Delete</a>
+        <a href="{% url 'semester-update' pk=semester.id %}">Update</a>
+    </li>
+    {% empty %}
+    <li>No semesters found.</li>
+    {% endfor %}
+</ul>
+
+<a href="{% url 'semester-create' %}">Create a New Semester</a>
+
+{% endblock %}

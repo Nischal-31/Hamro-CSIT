@@ -6,18 +6,20 @@
 <body>
     <h1>Subjects</h1>
     
-    {% if subjects %}
-        <ul>
-            {% for subject in subjects %}
-                <li>
-                    <!-- Ensure we're passing the correct 'id' to the URL -->
-                    <a href="{% url 'subject-detail' pk=subject.id %}">{{ subject.name }}</a>
-                </li>
-            {% endfor %}
-        </ul>
-    {% else %}
-        <p>No subjects available.</p>
-    {% endif %}
+    <ul>
+        {% for subject in subjects %}
+            <li>
+                <p>Subject ID: {{ subject.id }}</p> <!-- Debugging line -->
+                <p>Subject Name: {{ subject.name }}</p>
+                {% if subject.id %}
+                 <a href="{% url 'subject-detail' subject.id %}">View Details</a>
+                {% else %}
+                 <p>Invalid Subject Data</p>
+                {% endif %}
+            </li>
+        {% endfor %}
+    </ul>
+    
 </body>
 </html>
 
