@@ -5,6 +5,13 @@ urlpatterns = [
     # API Overview
     path('', views.apiOverview, name="api-overview"),
     
+    # Course URLs
+    path('course-list/', views.courseList, name="course-list-api"),
+    path('course-detail/<str:pk>/', views.courseDetail, name="course-detail-api"),
+    path('course-create/', views.courseCreate, name="course-create-api"),
+    path('course-update/<str:pk>/', views.courseUpdate, name="course-update-api"),
+    path('course-delete/<str:pk>/', views.courseDelete, name="course-delete-api"),
+    
     # Semester URLs
     path('semester-list/', views.semesterList, name="semester-list-api"),
     path('semester-detail/<str:pk>/', views.semesterDetail, name="semester-detail-api"),

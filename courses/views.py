@@ -3,6 +3,100 @@ from django.shortcuts import render,HttpResponse,redirect
 import requests  # For making HTTP requests
 from django.http import Http404
 #-------------------------------------------------------------------------------------------------------------------
+#                       COURSE VIEWS
+#-------------------------------------------------------------------------------------------------------------------
+
+
+def course_list_view(request):
+    api_url = 'http://127.0.0.1:8000/syllabus_api/course-list/'
+    response = requests.get(api_url)
+
+    if response.status_code == 200:
+        courses = response.json()  # API response with courses
+        print("API Response:", courses)  # Debugging
+    else:
+        courses = []
+
+    return render(request, 'courses/course_list.html', {'courses': courses})
+
+def course_detail_view(request, pk):
+    url = f"http://127.0.0.1:8000/syllabus_api/course-detail/{pk}/"  # Adjust API URL for course detail
+    response = requests.get(url)
+
+    if response.status_code == 200:
+        course = response.json()
+        return render(request, 'courses/course_detail.html', {'course': course})
+    else:
+        return render(request, 'courses/course_detail.html', {'error': 'Course not found'})
+
+
+def course_create_view(request):
+    if request.method == "POST":
+        data = {
+            "name": request.POST.get("name"),
+            "description": request.POST.get("description"),
+        }
+        api_url = "http://127.0.0.1:8000/syllabus_api/course-create/"
+        response = requests.post(api_url, json=data)
+
+        if response.status_code == 201:
+            return redirect("course-list")  # Redirect to course list page
+    
+    return render(request, "courses/course_create.html")
+
+
+def course_update_view(request, pk):
+    # Get the current course data from the API to pre-populate the form
+    api_url = f"http://127.0.0.1:8000/syllabus_api/course-detail/{pk}/"
+    response = requests.get(api_url)
+
+    if response.status_code == 200:
+        course = response.json()
+    else:
+        return redirect("course-list")
+
+    if request.method == "POST":
+        data = {
+            "name": request.POST.get("name"),
+            "description": request.POST.get("description"),
+        }
+
+        # Send POST request to update the course
+        update_url = f"http://127.0.0.1:8000/syllabus_api/course-update/{pk}/"
+        update_response = requests.post(update_url, json=data)
+
+        if update_response.status_code == 200:
+            return redirect("course-list")
+        else:
+            return render(request, "courses/course_update.html", {"course": course, "error": "Failed to update course."})
+
+    return render(request, "courses/course_update.html", {"course": course})
+
+
+def course_delete_view(request, pk):
+    # Get the course to be deleted
+    api_url = f"http://127.0.0.1:8000/syllabus_api/course-detail/{pk}/"
+    response = requests.get(api_url)
+
+    if response.status_code == 200:
+        course = response.json()
+    else:
+        return redirect("course-list")
+
+    if request.method == "POST":
+        # Send DELETE request to delete the course
+        delete_url = f"http://127.0.0.1:8000/syllabus_api/course-delete/{pk}/"
+        delete_response = requests.delete(delete_url)
+
+        if delete_response.status_code == 204:
+            return redirect("course-list")
+        else:
+            return render(request, "courses/course_delete.html", {"course": course, "error": "Failed to delete course."})
+
+    return render(request, "courses/course_delete.html", {"course": course})
+
+
+#-------------------------------------------------------------------------------------------------------------------
 #                       SEMESTER VIEWS
 #-------------------------------------------------------------------------------------------------------------------
 

@@ -1,0 +1,15 @@
+{% block content %}
+<h1>Course List</h1>
+<ul>
+    {% for course in courses %}
+        <li>
+            <a href="{% url 'course-detail' pk=course.id %}">{{ course.name }}</a> - {{ course.description }}
+        </li>
+    {% empty %}
+        <p>No courses available.</p>
+    {% endfor %}
+</ul>
+
+<a href="{% url 'course-create' %}">Create New Course</a>
+
+{% endblock %}

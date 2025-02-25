@@ -1,0 +1,13 @@
+
+{% block content %}
+<h1>Course Detail</h1>
+{% if course %}
+    <p><strong>Name:</strong> {{ course.name }}</p>
+    <p><strong>Description:</strong> {{ course.description }}</p>
+{% else %}
+    <p>{{ error }}</p>
+{% endif %}
+<a href="{% url 'course-update' pk=course.id %}">Edit</a>
+<a href="{% url 'course-delete' pk=course.id %}">Delete</a>
+
+{% endblock %}

@@ -1,13 +1,13 @@
 from django.shortcuts import render
 from django.http import JsonResponse
 from rest_framework import generics,status
-from .models import Subject,Syllabus,Chapter,Semester
+from .models import Subject,Syllabus,Chapter,Semester,Course
 
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.pagination import PageNumberPagination
-from .serializers import SubjectSerializer,SyllabusSerializer,ChapterSerializer,SemesterSerializer
+from .serializers import SubjectSerializer,SyllabusSerializer,ChapterSerializer,SemesterSerializer,CourseSerializer
 from django.urls import reverse
 
 #-----------------------------------------------------------------------------------------------------------------------------------------------
@@ -15,6 +15,13 @@ from django.urls import reverse
 @api_view(['GET'])
 def apiOverview(request):
     api_urls = {
+        "Courses": {
+            "List": request.build_absolute_uri(reverse('course-list')),
+            "Detail View": request.build_absolute_uri(reverse('course-detail', args=['<id>'])),
+            "Create": request.build_absolute_uri(reverse('course-create')),
+            "Update": request.build_absolute_uri(reverse('course-update', args=['<id>'])),
+            "Delete": request.build_absolute_uri(reverse('course-delete', args=['<id>']))
+        },
         "Subjects": {
             "List": request.build_absolute_uri(reverse('subject-list')),
             "Detail View": request.build_absolute_uri(reverse('subject-detail', args=['<id>'])),
@@ -47,6 +54,66 @@ def apiOverview(request):
 
     return Response(api_urls)
 
+#-------------------------------------------------------------------------------------------------------------------------------
+
+#-------------------------COURSE-----------------------------------
+
+@api_view(['POST'])
+def courseCreate(request):
+    serializer = CourseSerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['GET'])
+def courseList(request):
+    courses = Course.objects.all().order_by('id')  # Ensuring ordered query
+    serializer = CourseSerializer(courses, many=True)
+    return Response(serializer.data)
+
+@api_view(['GET'])
+def courseDetail(request, pk):
+    try:
+        course = Course.objects.get(id=pk)
+    except Course.DoesNotExist:
+        return Response({'error': 'Course not found'}, status=status.HTTP_404_NOT_FOUND)
+
+    serializer = CourseSerializer(course)
+    return Response(serializer.data)
+
+@api_view(['POST'])
+def courseUpdate(request, pk):
+    try:
+        course = Course.objects.get(id=pk)
+    except Course.DoesNotExist:
+        return Response({'error': 'Course not found'}, status=status.HTTP_404_NOT_FOUND)
+
+    # Updating fields
+    name = request.data.get("name")
+    description = request.data.get("description")
+
+    if name:
+        course.name = name
+    if description:
+        course.description = description
+
+    try:
+        course.save()
+    except Exception as e:
+        return Response({'error': f"Failed to update course: {str(e)}"}, status=status.HTTP_400_BAD_REQUEST)
+
+    serializer = CourseSerializer(course)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+@api_view(['DELETE'])
+def courseDelete(request, pk):
+    try:
+        course = Course.objects.get(id=pk)
+        course.delete()
+        return Response({'message': 'Course successfully deleted!'}, status=status.HTTP_200_OK)
+    except Course.DoesNotExist:
+        return Response({'error': 'Course not found'}, status=status.HTTP_404_NOT_FOUND)
 #--------------------------------------------------------------------------------------------------------------------
 
 #-------------------------SEMESTER-----------------------------------

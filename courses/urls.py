@@ -3,6 +3,12 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
+    path('course-list/', views.course_list_view, name='course-list'),
+    path('course-detail/<str:pk>/', views.course_detail_view, name='course-detail'),
+    path('course-create/', views.course_create_view, name='course-create'),
+    path('course-update/<str:pk>/', views.course_update_view, name='course-update'),
+    path('course-delete/<str:pk>/', views.course_delete_view, name='course-delete'),
+    
     path('semester-list/', views.semester_list_view, name='semester-list'),
     path('semester-detail/<str:pk>/', views.semester_detail_view, name='semester-detail'),
     path('semester-create/', views.semester_create_view, name='semester-create'),
