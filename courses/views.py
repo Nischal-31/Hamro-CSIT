@@ -225,17 +225,37 @@ def subject_list_view(request):
     return render(request, 'courses/subject_list.html', {'subjects': subjects})
 
 
+
 def subject_detail_view(request, pk):
-    api_url = f"http://127.0.0.1:8000/syllabus_api/subject-resources/{pk}/"
-    response = requests.get(api_url)
+    # Adjust the API URL for the subject
+    subject_url = f"http://127.0.0.1:8000/syllabus_api/subject-detail/{pk}/"  # Adjust as per your API endpoint
+    notes_url = f"http://127.0.0.1:8000/syllabus_api/note-list/?subject={pk}"  # API for notes
+    past_questions_url = f"http://127.0.0.1:8000/syllabus_api/pastQuestion-list/?subject={pk}"  # API for past questions
 
-    if response.status_code == 200:
-        data = response.json()
-        return render(request, "courses/subject_detail.html", {"subject": data["subject"], "notes": data["notes"], "past_questions": data["past_questions"]})
+    # Fetch subject details
+    subject_response = requests.get(subject_url)
+    if subject_response.status_code == 200:
+        subject = subject_response.json()  # Fetch subject data
     else:
-        return render(request, "courses/subject_detail.html", {"error": "Subject not found"})
+        return render(request, 'courses/subject_detail.html', {'error': 'Subject not found'})
 
+    # Fetch notes
+    notes_response = requests.get(notes_url)
+    notes = notes_response.json() if notes_response.status_code == 200 else []
 
+    # Fetch past questions
+    past_questions_response = requests.get(past_questions_url)
+    past_questions = past_questions_response.json() if past_questions_response.status_code == 200 else []
+
+    for note in notes:
+        note['file'] = request.build_absolute_uri(note['file'])
+        
+        
+    return render(request, 'courses/subject_detail.html', {
+        'subject': subject,
+        'notes': notes,
+        'past_questions': past_questions,
+    })
 
 def subject_create_view(request):
     api_url = "http://127.0.0.1:8000/syllabus_api/semester-list/"

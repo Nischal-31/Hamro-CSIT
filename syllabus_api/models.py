@@ -53,6 +53,14 @@ class Note(models.Model):
 
     def __str__(self):
         return self.title
+    
+#{
+#    "id": 1,
+#    "subject": 1,
+#    "title": "OOP Basics",
+#    "file": "/media/notes/oop-intro.pdf",
+#    "description": "Introduction to Object-Oriented Programming."
+#}
 
 class PastQuestion(models.Model):
     subject = models.ForeignKey(Subject, related_name="past_questions", on_delete=models.CASCADE)

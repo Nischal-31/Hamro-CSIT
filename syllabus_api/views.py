@@ -265,29 +265,29 @@ def subjectDelete(request,pk):
 #-------------------------NOTES-----------------------------------    
 @api_view(['POST'])
 def noteCreate(request):
-    data = request.data.copy()
-    subject_id = data.get('subject')
+    if request.method == 'POST':
+        data = request.data.copy()
+        
+        # Extract file from request.FILES
+        file = request.FILES.get('file')
 
-    # Check if the subject exists
-    try:
-        subject = Subject.objects.get(id=subject_id)
-    except Subject.DoesNotExist:
-        return Response({'error': 'Subject not found'}, status=status.HTTP_400_BAD_REQUEST)
+        # Ensure a file was uploaded
+        if not file:
+            return Response({'error': 'No file uploaded'}, status=400)
+        
+        # Create and save note
+        serializer = NotesSerializer(data=data)
+        if serializer.is_valid():
+            serializer.save(file=file)
+            return Response(serializer.data, status=201)
+        
+        return Response(serializer.errors, status=400)
 
-    # Assign the subject instance
-    data['subject'] = subject.id
-
-    serializer = NotesSerializer(data=data)
-    if serializer.is_valid():
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
 def noteList(request):
     notes = Note.objects.all().order_by('id')
-    serializer = NotesSerializer(notes, many=True)
+    serializer = NotesSerializer(notes, many=True,context={'request':request})
     return Response(serializer.data)
 
 @api_view(['GET'])
