@@ -1,13 +1,13 @@
 from django.shortcuts import render
 from django.http import JsonResponse
 from rest_framework import generics,status
-from .models import Subject,Syllabus,Chapter,Semester,Course
+from .models import Subject,Syllabus,Chapter,Semester,Course,Note,PastQuestion
 
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.pagination import PageNumberPagination
-from .serializers import SubjectSerializer,SyllabusSerializer,ChapterSerializer,SemesterSerializer,CourseSerializer
+from .serializers import SubjectSerializer,SyllabusSerializer,ChapterSerializer,SemesterSerializer,CourseSerializer,NotesSerializer,PastQuestionsSerializer      
 from django.urls import reverse
 
 #-----------------------------------------------------------------------------------------------------------------------------------------------
@@ -16,39 +16,53 @@ from django.urls import reverse
 def apiOverview(request):
     api_urls = {
         "Courses": {
-            "List": request.build_absolute_uri(reverse('course-list')),
-            "Detail View": request.build_absolute_uri(reverse('course-detail', args=['<id>'])),
-            "Create": request.build_absolute_uri(reverse('course-create')),
-            "Update": request.build_absolute_uri(reverse('course-update', args=['<id>'])),
-            "Delete": request.build_absolute_uri(reverse('course-delete', args=['<id>']))
+            "List": request.build_absolute_uri(reverse('course-list-api')),
+            "Detail View": request.build_absolute_uri(reverse('course-detail-api', args=['<id>'])),
+            "Create": request.build_absolute_uri(reverse('course-create-api')),
+            "Update": request.build_absolute_uri(reverse('course-update-api', args=['<id>'])),
+            "Delete": request.build_absolute_uri(reverse('course-delete-api', args=['<id>']))
         },
         "Subjects": {
-            "List": request.build_absolute_uri(reverse('subject-list')),
-            "Detail View": request.build_absolute_uri(reverse('subject-detail', args=['<id>'])),
-            "Create": request.build_absolute_uri(reverse('subject-create')),
-            "Update": request.build_absolute_uri(reverse('subject-update', args=['<id>'])),
-            "Delete": request.build_absolute_uri(reverse('subject-delete', args=['<id>']))
+            "List": request.build_absolute_uri(reverse('subject-list-api')),
+            "Detail View": request.build_absolute_uri(reverse('subject-detail-api', args=['<id>'])),
+            "Create": request.build_absolute_uri(reverse('subject-create-api')),
+            "Update": request.build_absolute_uri(reverse('subject-update-api', args=['<id>'])),
+            "Delete": request.build_absolute_uri(reverse('subject-delete-api', args=['<id>']))
+        },
+        "Notes": {
+            "List": request.build_absolute_uri(reverse('note-list-api')),
+            "Detail View": request.build_absolute_uri(reverse('note-detail-api', args=['<id>'])),
+            "Create": request.build_absolute_uri(reverse('note-create-api')),
+            "Update": request.build_absolute_uri(reverse('note-update-api', args=['<id>'])),
+            "Delete": request.build_absolute_uri(reverse('note-delete-api', args=['<id>']))
+        },
+        "PastQuestions": {
+            "List": request.build_absolute_uri(reverse('pastQuestion-list-api')),
+            "Detail View": request.build_absolute_uri(reverse('pastQuestion-detail-api', args=['<id>'])),
+            "Create": request.build_absolute_uri(reverse('pastQuestion-create-api')),
+            "Update": request.build_absolute_uri(reverse('pastQuestion-update-api', args=['<id>'])),
+            "Delete": request.build_absolute_uri(reverse('pastQuestion-delete-api', args=['<id>']))
         },
         "Syllabus": {
-            "List": request.build_absolute_uri(reverse('syllabus-list')),
-            "Detail View": request.build_absolute_uri(reverse('syllabus-detail', args=['<id>'])),
-            "Create": request.build_absolute_uri(reverse('syllabus-create')),
-            "Update": request.build_absolute_uri(reverse('syllabus-update', args=['<id>'])),
-            "Delete": request.build_absolute_uri(reverse('syllabus-delete', args=['<id>']))
+            "List": request.build_absolute_uri(reverse('syllabus-list-api')),
+            "Detail View": request.build_absolute_uri(reverse('syllabus-detail-api', args=['<id>'])),
+            "Create": request.build_absolute_uri(reverse('syllabus-create-api')),
+            "Update": request.build_absolute_uri(reverse('syllabus-update-api', args=['<id>'])),
+            "Delete": request.build_absolute_uri(reverse('syllabus-delete-api', args=['<id>']))
         },
         "Semesters": {
-            "List": request.build_absolute_uri(reverse('semester-list')),
-            "Detail View": request.build_absolute_uri(reverse('semester-detail', args=['<id>'])),
-            "Create": request.build_absolute_uri(reverse('semester-create')),
-            "Update": request.build_absolute_uri(reverse('semester-update', args=['<id>'])),
-            "Delete": request.build_absolute_uri(reverse('semester-delete', args=['<id>']))
+            "List": request.build_absolute_uri(reverse('semester-list-api')),
+            "Detail View": request.build_absolute_uri(reverse('semester-detail-api', args=['<id>'])),
+            "Create": request.build_absolute_uri(reverse('semester-create-api')),
+            "Update": request.build_absolute_uri(reverse('semester-update-api', args=['<id>'])),
+            "Delete": request.build_absolute_uri(reverse('semester-delete-api', args=['<id>']))
         },
         "Chapters": {
-            "List": request.build_absolute_uri(reverse('chapter-list')),
-            "Detail View": request.build_absolute_uri(reverse('chapter-detail', args=['<id>'])),
-            "Create": request.build_absolute_uri(reverse('chapter-create')),
-            "Update": request.build_absolute_uri(reverse('chapter-update', args=['<id>'])),
-            "Delete": request.build_absolute_uri(reverse('chapter-delete', args=['<id>']))
+            "List": request.build_absolute_uri(reverse('chapter-list-api')),
+            "Detail View": request.build_absolute_uri(reverse('chapter-detail-api', args=['<id>'])),
+            "Create": request.build_absolute_uri(reverse('chapter-create-api')),
+            "Update": request.build_absolute_uri(reverse('chapter-update-api', args=['<id>'])),
+            "Delete": request.build_absolute_uri(reverse('chapter-delete-api', args=['<id>']))
         }
     }
 
@@ -245,6 +259,113 @@ def subjectDelete(request,pk):
     subject = Subject.objects.get(id=pk)
     subject.delete()
     return Response('Subject successfully Deleted!')
+
+#--------------------------------------------------------------------------------------------------------------------
+
+#-------------------------NOTES-----------------------------------    
+@api_view(['POST'])
+def noteCreate(request):
+    data = request.data.copy()
+    subject_id = data.get('subject')
+
+    # Check if the subject exists
+    try:
+        subject = Subject.objects.get(id=subject_id)
+    except Subject.DoesNotExist:
+        return Response({'error': 'Subject not found'}, status=status.HTTP_400_BAD_REQUEST)
+
+    # Assign the subject instance
+    data['subject'] = subject.id
+
+    serializer = NotesSerializer(data=data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['GET'])
+def noteList(request):
+    notes = Note.objects.all().order_by('id')
+    serializer = NotesSerializer(notes, many=True)
+    return Response(serializer.data)
+
+@api_view(['GET'])
+def noteDetail(request,pk):
+    note = Note.objects.get(id=pk)
+    serializer= NotesSerializer(note,many=False)
+    return Response(serializer.data)
+
+@api_view(['POST'])
+def noteUpdate(request,pk):
+    note = Note.objects.get(id=pk)
+    serializer=NotesSerializer(instance=note ,data=request.data)
+    
+    if serializer.is_valid():
+        serializer.save()
+        
+    return Response(serializer.data)
+
+
+@api_view(['DELETE'])
+def noteDelete(request,pk):
+    note = Note.objects.get(id=pk)
+    note.delete()
+    return Response('Note successfully Deleted!')
+
+#--------------------------------------------------------------------------------------------------------------------
+
+#-------------------------OLDQUESTIONS-----------------------------------   
+
+@api_view(['POST'])
+def pastQuestionCreate(request):
+    data = request.data.copy()
+    subject_id = data.get('subject')
+
+    # Check if the subject exists
+    try:
+        subject = Subject.objects.get(id=subject_id)
+    except Subject.DoesNotExist:
+        return Response({'error': 'Subject not found'}, status=status.HTTP_400_BAD_REQUEST)
+
+    # Assign the subject instance
+    data['subject'] = subject.id
+
+    serializer = PastQuestionsSerializer(data=data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['GET'])
+def pastQuestionList(request):
+    pastquestions = PastQuestion.objects.all().order_by('id')
+    serializer = PastQuestionsSerializer(pastquestions, many=True)
+    return Response(serializer.data)
+
+@api_view(['GET'])
+def pastQuestionDetail(request,pk):
+    pastquestion = PastQuestion.objects.get(id=pk)
+    serializer= PastQuestionsSerializer(pastquestion,many=False)
+    return Response(serializer.data)
+
+@api_view(['POST'])
+def pastQuestionUpdate(request,pk):
+    pastquestion = PastQuestion.objects.get(id=pk)
+    serializer=PastQuestionsSerializer(instance=pastquestion ,data=request.data)
+    
+    if serializer.is_valid():
+        serializer.save()
+        
+    return Response(serializer.data)
+
+
+@api_view(['DELETE'])
+def pastQuestionDelete(request,pk):
+    pastquestion = PastQuestion.objects.get(id=pk)
+    pastquestion.delete()
+    return Response('Note successfully Deleted!')
 
 #--------------------------------------------------------------------------------------------------------------------
 

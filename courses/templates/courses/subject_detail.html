@@ -1,11 +1,22 @@
+<h2>{{ subject.name }}</h2>
+<p><strong>Code:</strong> {{ subject.code }}</p>
+<p><strong>Semester:</strong> {{ subject.semester.number }}</p>
+<p><strong>Description:</strong> {{ subject.description }}</p>
 
-{% block content %}
-{% if error %}
-    <h2>{{ error }}</h2>
-{% else %}
-    <h2>Subject Details: {{ subject.name }}</h2>
-    <p><strong>Code:</strong> {{ subject.code }}</p>
-    <p><strong>Semester:</strong> {{ subject.semester }}</p>
-    <p><strong>Description:</strong> {{ subject.description }}</p>
-{% endif %}
-{% endblock %}
+<h3>Notes</h3>
+<ul>
+    {% for note in notes %}
+        <li><a href="{{ note.file.url }}" target="_blank">{{ note.title }}</a></li>
+    {% empty %}
+        <li>No notes available.</li>
+    {% endfor %}
+</ul>
+
+<h3>Past Questions</h3>
+<ul>
+    {% for question in past_questions %}
+        <li><a href="{{ question.file.url }}" target="_blank">{{ question.title }}</a></li>
+    {% empty %}
+        <li>No past questions available.</li>
+    {% endfor %}
+</ul>

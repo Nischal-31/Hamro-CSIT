@@ -24,6 +24,25 @@ class Subject(models.Model):
 
     def __str__(self):
         return f"{self.name} (Sem {self.semester.number})"
+    
+class Note(models.Model):
+    subject = models.ForeignKey(Subject, related_name="notes", on_delete=models.CASCADE)
+    title = models.CharField(max_length=255)
+    description = models.TextField(blank=True, null=True)
+    file = models.FileField(upload_to='notes/')  # File upload for the notes
+
+    def __str__(self):
+        return self.title
+
+class PastQuestion(models.Model):
+    subject = models.ForeignKey(Subject, related_name="past_questions", on_delete=models.CASCADE)
+    year = models.IntegerField()
+    title = models.CharField(max_length=255)
+    description = models.TextField(blank=True, null=True)
+    file = models.FileField(upload_to='past_questions/')  # File upload for the past question papers
+
+    def __str__(self):
+        return f"Past Question {self.year} - {self.title}"
 
 class Syllabus(models.Model):
     subject = models.OneToOneField(Subject, on_delete=models.CASCADE, related_name="syllabus")
@@ -34,13 +53,7 @@ class Syllabus(models.Model):
     def __str__(self):
         return f"Syllabus of {self.subject.name}"
     
-#{like:
-#  "subject": 1,
-#  "objectives": "To understand the basic principles of computer science.",
-#  "content": "1. Introduction to Programming\n2. Data Structures\n3. Algorithms",
-#  "references": ["Introduction to Algorithms - Cormen", "Python Programming - Zed Shaw"]
-#}    
-    
+
 class Chapter(models.Model):
     syllabus = models.ForeignKey(Syllabus, on_delete=models.CASCADE, related_name="chapters")
     title = models.CharField(max_length=255)

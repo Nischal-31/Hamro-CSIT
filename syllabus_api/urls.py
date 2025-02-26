@@ -25,7 +25,21 @@ urlpatterns = [
     path('subject-create/', views.subjectCreate, name="subject-create-api"),
     path('subject-update/<str:pk>/', views.subjectUpdate, name="subject-update-api"),
     path('subject-delete/<str:pk>/', views.subjectDelete, name="subject-delete-api"),
-
+    
+    # Notes URLs
+    path('note-list/', views.noteList, name="note-list-api"),
+    path('note-detail/<str:pk>/', views.noteDetail, name="note-detail-api"),
+    path('note-create/', views.noteCreate, name="note-create-api"),
+    path('note-update/<str:pk>/', views.noteUpdate, name="note-update-api"),
+    path('note-delete/<str:pk>/', views.noteDelete, name="note-delete-api"),
+    
+     # PastQuestions URLs
+    path('pastQuestion-list/', views.pastQuestionList, name="pastQuestion-list-api"),
+    path('pastQuestion-detail/<str:pk>/', views.pastQuestionDetail, name="pastQuestion-detail-api"),
+    path('pastQuestion-create/', views.pastQuestionCreate, name="pastQuestion-create-api"),
+    path('pastQuestion-update/<str:pk>/', views.pastQuestionUpdate, name="pastQuestion-update-api"),
+    path('pastQuestion-delete/<str:pk>/', views.pastQuestionDelete, name="pastQuestion-delete-api"),
+    
 
     # Syllabus URLs
     path('syllabus-list/', views.syllabusList, name="syllabus-list-api"),

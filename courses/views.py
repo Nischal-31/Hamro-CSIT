@@ -2,6 +2,22 @@
 from django.shortcuts import render,HttpResponse,redirect
 import requests  # For making HTTP requests
 from django.http import Http404
+
+def courses_view(request):
+    api_url = 'http://127.0.0.1:8000/syllabus_api/course-list/'
+    response = requests.get(api_url)
+
+    if response.status_code == 200:
+        courses = response.json()  # API response with courses
+        print("API Response:", courses)  # Debugging
+    else:
+        courses = []
+
+    return render(request, 'courses/courses.html', {'courses': courses})
+
+
+
+
 #-------------------------------------------------------------------------------------------------------------------
 #                       COURSE VIEWS
 #-------------------------------------------------------------------------------------------------------------------
@@ -210,28 +226,41 @@ def subject_list_view(request):
 
 
 def subject_detail_view(request, pk):
-    url = f"http://127.0.0.1:8000/syllabus_api/subject-detail/{pk}/"  # Adjust API URL
-    response = requests.get(url)
+    api_url = f"http://127.0.0.1:8000/syllabus_api/subject-resources/{pk}/"
+    response = requests.get(api_url)
+
     if response.status_code == 200:
-        subject = response.json()
-        return render(request, 'courses/subject_detail.html', {'subject': subject})
+        data = response.json()
+        return render(request, "courses/subject_detail.html", {"subject": data["subject"], "notes": data["notes"], "past_questions": data["past_questions"]})
     else:
-        return render(request, 'courses/subject_detail.html', {'error': 'Subject not found'})
+        return render(request, "courses/subject_detail.html", {"error": "Subject not found"})
+
+
 
 def subject_create_view(request):
+    api_url = "http://127.0.0.1:8000/syllabus_api/semester-list/"
+    response = requests.get(api_url)
+
+    if response.status_code == 200:
+        semesters = response.json()
+    else:
+        semesters = []
+
     if request.method == "POST":
         data = {
             "name": request.POST.get("name"),
             "code": request.POST.get("code"),
-            "semester": request.POST.get("semester"),
+            "semester": request.POST.get("semester"),  # Sending correct semester ID
         }
-        api_url = "http://127.0.0.1:8000/syllabus_api/subject-create/"
-        response = requests.post(api_url, json=data)
+        create_url = "http://127.0.0.1:8000/syllabus_api/subject-create/"
+        create_response = requests.post(create_url, json=data)
 
-        if response.status_code == 201:
+        if create_response.status_code == 201:
             return redirect("subject-list")
-    
-    return render(request, "courses/subject_create.html")
+
+    return render(request, "courses/subject_create.html", {"semesters": semesters})
+
+
 
 # ✅ Subject Update View
 def subject_update_view(request, pk):

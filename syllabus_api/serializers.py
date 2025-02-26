@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Subject,Semester,Syllabus,Chapter,Course
+from .models import Subject,Semester,Syllabus,Chapter,Course,Note,PastQuestion
 
 class CourseSerializer(serializers.ModelSerializer):
     class Meta:
@@ -26,3 +26,14 @@ class ChapterSerializer(serializers.ModelSerializer):
     class Meta:
         model = Chapter
         fields = '__all__'
+
+class NotesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Note
+        fields = '__all__'
+        
+class PastQuestionsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PastQuestion
+        fields = '__all__'
+
