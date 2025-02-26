@@ -7,6 +7,11 @@ class Course(models.Model):
     def __str__(self):
         return self.name
 
+#{
+#    "name": "Computer Science",
+#    "description": "This course covers the fundamentals of computer science, including programming, algorithms, and data structures."
+#}
+
 class Semester(models.Model):
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name="semesters")
     number = models.IntegerField(unique=True)
@@ -14,6 +19,12 @@ class Semester(models.Model):
 
     def __str__(self):
         return f"Semester {self.number} - {self.course.name}"
+
+#{
+#    "course": 1,   (id of course)
+#    "number": 1,
+#    "description": "First semester covering basic programming and mathematics."
+#}
 
 class Subject(models.Model):
     semester = models.ForeignKey(Semester, on_delete=models.CASCADE)  # Foreign key reference to Semester
@@ -24,6 +35,15 @@ class Subject(models.Model):
 
     def __str__(self):
         return f"{self.name} (Sem {self.semester.number})"
+    
+#{
+#    "semester": 1,  (id of semester)
+#    "name": "Object-Oriented Programming",
+#    "code": "CSIT201",
+#    "credits": 3,
+#    "description": "This course covers object-oriented programming concepts using C++."
+#}
+
     
 class Note(models.Model):
     subject = models.ForeignKey(Subject, related_name="notes", on_delete=models.CASCADE)
