@@ -9,14 +9,14 @@ urlpatterns = [
 	path('admin/', admin.site.urls),
     path('', views.index_view, name ='index'),
     path('about/', views.about_view, name ='about'),
-    path('blog/', views.blog_view, name ='blog'),
     path('course/', views.course_view, name ='course'),
     path('contact/', views.contact_view, name ='contact'),
-    path('post/', views.post_view, name ='post'),
 
 
     path('accounts/', include('allauth.urls')),
     path('courses/', include('courses.urls')),
+    path('blog/', include('blog.urls')),
+    
     
     
 	##### user related path########################## 
