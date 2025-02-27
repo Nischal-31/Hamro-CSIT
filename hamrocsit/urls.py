@@ -4,19 +4,17 @@ from user import views as user_view
 from django.contrib.auth import views as auth
 from django.conf import settings
 from django.conf.urls.static import static
+from . import views
 
 urlpatterns = [
 	path('admin/', admin.site.urls),
+    path('', views.index, name ='index'),
 
     path('accounts/', include('allauth.urls')),
     path('courses/', include('courses.urls')),
     
 	##### user related path########################## 
-	path('', include('user.urls')),
-	path('login/', user_view.Login, name ='login'),
-    path('logout/', user_view.logout_view, name='logout'),
-	path('register/', user_view.register, name ='register'),
-
+	path('user/', include('user.urls')),
     path('syllabus_api/', include('syllabus_api.urls')),
 ]
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

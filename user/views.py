@@ -8,11 +8,6 @@ from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 
 
-#################### index ####################################### 
-def index(request):
-    return render(request, 'user/index.html', {'title': 'index'})
-
-
 ########### register here ##################################### 
 def register(request):
     if request.method == 'POST':
@@ -24,7 +19,7 @@ def register(request):
 
             ######################### mail system #################################### 
             subject = 'Welcome to Our Website'
-            from_email = 'your_email@gmail.com'
+            from_email = 'xenobaka2@gmail.com'
             to = email
             html_content = render_to_string('user/Email.html', {'username': username})
             msg = EmailMultiAlternatives(subject, '', from_email, [to])
