@@ -3,16 +3,16 @@
 	<div class="navigation">
 		<ul>
 			<i id="menu-close" class="fas fa-times"></i>
-			<li><a class="active" href="{% url "index" %}">Home</a></li>
-			<li><a href="{% url "about" %}">About</a></li>
-			<li><a href="{% url "blog" %}">Blog</a></li>
-			<li><a href="{% url "courses"  %}">Courses</a></li>
-			<li><a href="{% url "contact" %}">Contact</a></li>
+			<li class="{% if request.path == '/' %} active {% endif %}"><a href="{% url 'index' %}" class="active">Home</a></li>
+			<li class="{% if request.path == '/about/' %} active {% endif %}"><a href="{% url 'about' %}" >About</a></li>
+			<li class="{% if request.path == '/blog/' %} active {% endif %}"><a href="{% url 'blog' %}" >Blog</a></li>
+			<li class="{% if request.path == '/course/' %} active {% endif %}"><a href="{% url 'course'  %}" >Courses</a></li>
+			<li class="{% if request.path == '/contact/' %} active {% endif %}"><a href="{% url 'contact' %}" >Contact</a></li>
 			{% if user.is_authenticated %}
-			<li><a href="{% url "logout" %}">LogOut</a></li>
+			<li><a href="{% url 'logout' %}">LogOut</a></li>
 			{% else %}
-			<li><a href="{% url "login" %}">Login</a></li>
-			<li><a href="{% url "register" %}">Sign Up</a></li>
+			<li><a href="{% url 'login' %}">Login</a></li>
+			<li><a href="{% url 'register' %}">Sign Up</a></li>
 			{% endif %}
 
 		</ul>
