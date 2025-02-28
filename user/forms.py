@@ -12,9 +12,17 @@ class UserRegisterForm(UserCreationForm):
     terms_agree = forms.BooleanField(required=True, label="I Agree to Terms and Conditions")
     remember_me = forms.BooleanField(required=False, label="Remember Me")
     
+    # Add user_type field to choose the role
+    user_type = forms.ChoiceField(
+        choices=CustomUser.USER_TYPE_CHOICES,
+        widget=forms.Select(attrs={'class': 'form-control'}),
+        required=False,  # Make it required only for admins
+        label="Select User Type"
+    )
+    
     class Meta:
         model = CustomUser  # Make sure to point to your custom user model
-        fields = ['username', 'email', 'phone_no', 'first_name', 'last_name', 'password1', 'password2']
+        fields = ['username', 'email', 'phone_no', 'first_name', 'last_name', 'password1', 'password2','user_type']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -45,6 +53,15 @@ class UserRegisterForm(UserCreationForm):
                 Column(Field('terms_agree'), css_class='col-md-6'),
                 Column(Field('remember_me'), css_class='col-md-6'),
             ),
+            Row(
+                Column(Field('user_type'), css_class='col-md-12'),
+            ),
 
             Submit('submit', 'Continue', css_class='btn btn-primary w-100')
         )
+    def clean_user_type(self):
+        user_type = self.cleaned_data.get('user_type')
+        # If it's a Google signup, automatically set the user type to "normal"
+        if not user_type:
+            user_type = 'normal'
+        return user_type 

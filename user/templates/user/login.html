@@ -26,7 +26,7 @@
             <p>Redirecting you to your dashboard...</p>
             <script>
                 setTimeout(function() {
-                    window.location.href = "{% url 'dashboard' %}";  // Replace with your dashboard URL
+                    window.location.href = "{% url 'index' %}";  // Replace with your dashboard URL
                 }, 2000);
             </script>
         </div>
@@ -43,19 +43,6 @@
                     <p class="text-white fs-2" style="font-family: 'Courier New', Courier, monospace; font-weight: 600;">Be Verified</p>
                     <small class="text-white text-wrap text-center" style="width: 17rem;font-family: 'Courier New', Courier, monospace;">Join experienced Designers on this platform.</small>
                     <!-- Separate Google Login Section (outside form) -->
-        <div class="text-center mt-3">
-            <button class="btn btn-lg btn-light w-100 fs-6">
-                <a href="{% provider_login_url 'google' %}" class="text-dark" style="text-decoration:none">
-                    <img src="/static/images/google.png" style="width:20px" class="me-2">
-                    <small>Sign In with Google</small>
-                </a>
-            </button>
-        </div>
-
-        <!-- Sign Up Link -->
-        <div class="row text-center mt-3 display-7">
-            <small>Don't have an account? <a href="{% url 'register' %}"style="text-decoration:none">Sign Up</a></small>
-        </div>
 
      </div> 
 
@@ -88,6 +75,7 @@
                             </div>
                         </div>
                         
+
                         <!-- Login Button -->
                         <div class="mb-3">
                             <button class="btn btn-lg btn-primary w-100 fs-6" type="submit">Login</button>
@@ -98,6 +86,20 @@
 
             </div>
         </form>
+        <div class="text-center mt-3">
+            <button class="btn btn-lg btn-light w-100 fs-6">
+                <a href="{% provider_login_url 'google' %}" class="text-dark" style="text-decoration:none">
+                    <img src="/static/images/google.png" style="width:20px" class="me-2">
+                    <small>Sign In with Google</small>
+                </a>
+            </button>
+        </div>
+
+        <!-- Sign Up Link -->
+        <div class="row text-center mt-3 display-7">
+            <small>Don't have an account? <a href="{% url 'register' %}"style="text-decoration:none">Sign Up</a></small>
+        </div>
+
 
     
         {% endif %}

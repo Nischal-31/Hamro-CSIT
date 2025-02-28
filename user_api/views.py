@@ -1,7 +1,7 @@
 from rest_framework import generics, permissions
 from user.models import CustomUser
 from .serializers import UserSerializer
-
+from .permissions import IsAdminUser, IsAdminOrReadOnly
 from django.shortcuts import render
 from django.http import JsonResponse
 from rest_framework import generics,status
@@ -14,6 +14,7 @@ from django.urls import reverse
 
 
 @api_view(['GET'])
+@permission_classes([IsAuthenticated,IsAdminUser]) 
 def apiOverview(request):
     api_urls = {
         "Users": {
@@ -27,6 +28,7 @@ def apiOverview(request):
     return Response(api_urls)
 
 @api_view(['POST'])
+@permission_classes([ IsAdminUser])  # Only Admin can create users
 def userCreate(request):
     serializer = UserSerializer(data=request.data)
     if serializer.is_valid():
@@ -35,6 +37,7 @@ def userCreate(request):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
+@permission_classes([ IsAdminOrReadOnly])  # Admin can list, others can view
 def userList(request):
     users = CustomUser.objects.all().order_by('id')  # Ensuring ordered query
     serializer = UserSerializer(users, many=True)
@@ -42,6 +45,7 @@ def userList(request):
 
 
 @api_view(['GET'])
+@permission_classes([ IsAdminOrReadOnly])  # Admin can view details, others can only read
 def userDetail(request, pk):
     try:
         user = CustomUser.objects.get(id=pk)
@@ -52,6 +56,7 @@ def userDetail(request, pk):
     return Response(serializer.data)
 
 @api_view(['POST'])
+@permission_classes([IsAdminUser])  # Only Admin can update users
 def userUpdate(request, pk):
     try:
         user = CustomUser.objects.get(id=pk)  # Attempt to retrieve user by pk
@@ -87,6 +92,7 @@ def userUpdate(request, pk):
 
 
 @api_view(['DELETE'])
+@permission_classes([IsAdminUser])  # Only Admin can delete users
 def userDelete(request, pk):
     try:
         user = CustomUser.objects.get(id=pk)

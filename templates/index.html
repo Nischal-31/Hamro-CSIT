@@ -6,14 +6,26 @@
 
    <!-- Home -->
     
+  
    <section id="home">
-	<h2>Enhance Your Future WIth TechEduca</h2>
-	<p>Lorem ipsum dolor sit, amet consectetur adipisicing elit. Excepturi, voluptatum culpa esse ab quo est! Perspiciatis rerum ipsam amet saepe inventore. Reiciendis placeat magnam perferendis maiores architecto repellendus quae in?</p>
+	{% if user.is_authenticated %}
+	<h2>Welcome {{ user.username }},Enhance Your Future WIth TechEduca</h2>
+	<p>amet consectetur adipisicing elit. Excepturi, voluptatum culpa esse ab quo est! Perspiciatis rerum ipsam amet saepe inventore. Reiciendis placeat magnam perferendis maiores architecto repellendus quae in?</p>
 	<div class="btn">
 		<a class="blue" href="#">Learn More</a>
 		<a class="yellow" href="#">Visit Courses</a>
 	</div>
+	{% else %}
+	<h2>Welcome Guest,Enhance Your Future WIth TechEduca</h2>
+	<p>amet consectetur adipisicing elit. Excepturi, voluptatum culpa esse ab quo est! Perspiciatis rerum ipsam amet saepe inventore. Reiciendis placeat magnam perferendis maiores architecto repellendus quae in?</p>
+	<div class="btn">
+		<a class="blue" href="#">Learn More</a>
+		<a class="yellow" href="#">Visit Courses</a>
+	</div>
+	{% endif %}
     </section>
+	
+	
 
 <!-- Courses -->
 

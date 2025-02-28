@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'allauth.socialaccount.providers.google',
     
     'rest_framework',
+    'rest_framework.authtoken',
     
     'user',
     'courses',
@@ -58,6 +59,14 @@ INSTALLED_APPS = [
     'user_api',
         
 ]
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.TokenAuthentication',  # Example for Token Authentication
+    ],
+}
+
 
 SITE_ID = 6
 
