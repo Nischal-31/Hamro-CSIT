@@ -13,18 +13,7 @@ def register(request):
     if request.method == 'POST':
         form = UserRegisterForm(request.POST)
         if form.is_valid():
-            user = form.save()
-            username = form.cleaned_data.get('username')
-            email = form.cleaned_data.get('email')
-
-            ######################### mail system #################################### 
-            subject = 'Welcome to Our Website'
-            from_email = 'xenobaka2@gmail.com'
-            to = email
-            html_content = render_to_string('user/Email.html', {'username': username})
-            msg = EmailMultiAlternatives(subject, '', from_email, [to])
-            msg.attach_alternative(html_content, "text/html")
-            msg.send()
+            form.save()  # This automatically triggers the signal to send the email
 
             messages.success(request, 'Your account has been created! You are now able to log in.')
             return redirect('login')  # Ensure 'login' matches the name in your urls.py
