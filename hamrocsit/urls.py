@@ -22,5 +22,6 @@ urlpatterns = [
 	##### user related path########################## 
 	path('user/', include('user.urls')),
     path('syllabus_api/', include('syllabus_api.urls')),
+     path('user_api/', include('user_api.urls')),  # Separate user API
 ]
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

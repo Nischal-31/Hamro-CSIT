@@ -53,7 +53,9 @@ INSTALLED_APPS = [
     'courses',
     'blog',
     'contactenquiry',
+    
     'syllabus_api',
+    'user_api',
         
 ]
 
