@@ -10,7 +10,7 @@
         </section>
         
         {% for post in posts %}
-        <section id="blog-container">
+        <section id="blog-container">  
             <div class="blogs">
                 <div class="post">
                  {% if post.image %}
@@ -21,26 +21,19 @@
                 <a href="{% url 'blog_detail' slug=post.slug %}">Read More</a>
                 </div>
              </div>
-        </section>
-        {% endfor %}
-
-
-    
+           
+             
             <div class="cate">
                 <h2>Categories</h2>
+                {% for post in posts %}
                 <hr>
-                <a href="#">Web Development</a>
+                <a href="{% url 'blog_detail' slug=post.slug %}">{{ post.title }}</a>
                 <hr>
-                <a href="#">Web Design</a>
-                <hr>
-                <a href="#">App Development</a>
-                <hr>
-                <a href="#">Frontend Web </a>
-                <hr>
-                <a href="#">Python Programming</a>
-                <hr>
-                <a href="#">Javascript Hack</a>
-                <hr>
+                  {% endfor %}
             </div>
+            
         </section>
+        {% endfor %}
+        
+
 {% endblock %}

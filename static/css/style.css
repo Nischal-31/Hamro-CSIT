@@ -145,46 +145,6 @@ nav .navigation ul li a.active,nav .navigation ul li a:hover{
   color:  rgb(21, 21, 100);
   background-color:#fff;
 }
-/* features */
-
-#features{
-  padding: 5vw 8vw 8vw 8vw;
-  text-align: center; 
-}
-#features .fea-base {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  grid-gap:1rem;
-  margin-top: 50px;
-}
-
-#features .fea-box{
-  background: #F9F9FF;
-  text-align: start;
-  flex: 1 1 320px; /* This ensures that each box takes at least 320px width */
-  max-width: calc(33.33% - 1rem); /* Adjust the width as needed */
-  box-sizing: border-box;
-}
-
-#features .fea-box i{
- font-size: 2.3rem;
- color: rgb(44, 44, 80);
-}
-
-#features .fea-box h3{
-  font-size: 1.2rem;
-  font-weight: 600;
-  color: rgb(46, 46, 59);
-  padding: 13px 0 7px 0;
-}
-
-
-#features .fea-box p{
-  font-size: 1rem;
-  font-weight: 400;
-  color: rgb(70, 70, 87);
-}
-
 
 /* course */
 

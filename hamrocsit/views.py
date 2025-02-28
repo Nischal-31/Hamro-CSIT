@@ -15,5 +15,8 @@ def contact_view(request):
 def course_view(request):
     return render(request, 'course.html')
 
+def course_inner_view(request):
+    return render(request, 'course-inner.html')
+
 def post_view(request):
     return render(request, 'post.html')
