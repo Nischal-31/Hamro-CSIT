@@ -35,16 +35,22 @@ def course_list_view(request):
 
     return render(request, 'courses/course_list.html', {'courses': courses})
 
-def course_detail_view(request, pk):
-    url = f"http://127.0.0.1:8000/syllabus_api/course-detail/{pk}/"  # Adjust API URL for course detail
-    response = requests.get(url)
 
-    if response.status_code == 200:
-        course = response.json()
-        return render(request, 'courses/course_detail.html', {'course': course})
-    else:
-        return render(request, 'courses/course_detail.html', {'error': 'Course not found'})
+def course_detail_view(request, course_id):
+    # Fetch the specific course
+    course_api_url = f"http://127.0.0.1:8000/syllabus_api/course-detail/{course_id}/"
+    course_response = requests.get(course_api_url)
+    course = course_response.json() if course_response.status_code == 200 else None
 
+    # Fetch the semesters that belong to this course
+    semester_api_url = f"http://127.0.0.1:8000/syllabus_api/semester-list/"
+    semester_response = requests.get(semester_api_url)
+    semesters = semester_response.json() if semester_response.status_code == 200 else []
+
+    # Filter semesters for this course
+    filtered_semesters = [semester for semester in semesters if semester['course'] == course_id]
+
+    return render(request, 'courses/course_detail.html', {'course': course, 'semesters': filtered_semesters})
 
 def course_create_view(request):
     if request.method == "POST":
@@ -116,17 +122,14 @@ def course_delete_view(request, pk):
 #                       SEMESTER VIEWS
 #-------------------------------------------------------------------------------------------------------------------
 
-def semester_list_view(request):
-    api_url = 'http://127.0.0.1:8000/syllabus_api/semester-list/'
-    response = requests.get(api_url)
 
-    if response.status_code == 200:
-        semesters = response.json()
-        print("API Response:", semesters)  # Debugging
-    else:
-        semesters = []
-    
-    return render(request, 'courses/semester_list.html', {'semesters': semesters})
+def semester_list_view(request, course_id):
+    # Fetch semesters only for the selected course
+    semester_api_url = f"http://127.0.0.1:8000/syllabus_api/semester-list/?course_id={course_id}"
+    response = requests.get(semester_api_url)
+    semesters = response.json() if response.status_code == 200 else []
+
+    return render(request, 'courses/semester_list.html', {'semesters': semesters, 'course_id': course_id})
 
 
 def semester_detail_view(request, pk):

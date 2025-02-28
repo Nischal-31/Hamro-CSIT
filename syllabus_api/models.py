@@ -17,7 +17,10 @@ class Semester(models.Model):
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name="semesters")
     number = models.IntegerField(unique=True)
     description = models.TextField(blank=True, null=True)
-
+    
+    class Meta:
+        unique_together = ("course", "number")  #Ensures semesters are unique per course
+        
     def __str__(self):
         return f"Semester {self.number} - {self.course.name}"
 
@@ -45,24 +48,6 @@ class Subject(models.Model):
 #    "description": "This course covers object-oriented programming concepts using C++."
 #}
 
-    
-class Note(models.Model):
-    subject = models.ForeignKey(Subject, related_name="notes", on_delete=models.CASCADE)
-    title = models.CharField(max_length=255)
-    description = models.TextField(blank=True, null=True)
-    file = models.FileField(upload_to='notes/')  # File upload for the notes
-
-    def __str__(self):
-        return self.title
-    
-#{
-#    "id": 1,
-#    "subject": 1,
-#    "title": "OOP Basics",
-#    "file": "/media/notes/oop-intro.pdf",
-#    "description": "Introduction to Object-Oriented Programming."
-#}
-
 class PastQuestion(models.Model):
     subject = models.ForeignKey(Subject, related_name="past_questions", on_delete=models.CASCADE)
     year = models.IntegerField()
@@ -81,10 +66,9 @@ class Syllabus(models.Model):
 
     def __str__(self):
         return f"Syllabus of {self.subject.name}"
-    
 
 class Chapter(models.Model):
-    syllabus = models.ForeignKey(Syllabus, on_delete=models.CASCADE, related_name="chapters")
+    subject = models.ForeignKey(Subject, on_delete=models.CASCADE, related_name="chapters")
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
     order = models.PositiveIntegerField()  # Helps in ordering chapters
@@ -93,4 +77,26 @@ class Chapter(models.Model):
         ordering = ["order"]
 
     def __str__(self):
-        return f"{self.title} - {self.syllabus.subject.name}"
+        return f"{self.title} - {self.subject.name}"    
+    
+class Note(models.Model):
+    chapter = models.ForeignKey(Chapter, related_name="notes", on_delete=models.CASCADE)
+    title = models.CharField(max_length=255)
+    description = models.TextField(blank=True, null=True)
+    file = models.FileField(upload_to='notes/')  # File upload for the notes
+
+    def __str__(self):
+        return self.title
+    
+#{
+#    "id": 1,
+#    "subject": 1,
+#    "title": "OOP Basics",
+#    "file": "/media/notes/oop-intro.pdf",
+#    "description": "Introduction to Object-Oriented Programming."
+#}
+
+
+    
+
+

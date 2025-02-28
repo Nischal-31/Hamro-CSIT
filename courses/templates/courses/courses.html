@@ -18,13 +18,8 @@
           <p>Replenish man having thing gathering lights yielding shall you</p>
           {% for course in courses %}
           <div class="course-box">
-              <div onclick="window.location.href='{% url 'semester-list' %}';" class="courses">
-                {% if course.image %}
-                <p>{{ course.image.url }}</p>
-                <img src="{{ course.image.url }}" alt="{{ course.name }}">
-                {% else %}
-                <p>No Image Available</p>
-                {% endif %}
+            <div class="courses" onclick="window.location.href='{% url 'semester-list' %}?course_id={{ course.id }}';">
+                <img src="{{ course.image }}" alt="{{ course.name }}">
                   <div class="details">
                       <span>{{course.name}}</span>
                       <h6>{{course.description}}</h6>

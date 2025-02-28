@@ -11,6 +11,10 @@ from .serializers import SubjectSerializer,SyllabusSerializer,ChapterSerializer,
 from django.urls import reverse
 
 #-----------------------------------------------------------------------------------------------------------------------------------------------
+class StandardResultsSetPagination(PageNumberPagination):
+    page_size = 10
+    page_size_query_param = 'page_size'
+    max_page_size = 1000
 
 @api_view(['GET'])
 def apiOverview(request):
@@ -22,19 +26,19 @@ def apiOverview(request):
             "Update": request.build_absolute_uri(reverse('course-update-api', args=['<id>'])),
             "Delete": request.build_absolute_uri(reverse('course-delete-api', args=['<id>']))
         },
+        "Semesters": {
+            "List": request.build_absolute_uri(reverse('semester-list-api')),
+            "Detail View": request.build_absolute_uri(reverse('semester-detail-api', args=['<id>'])),
+            "Create": request.build_absolute_uri(reverse('semester-create-api')),
+            "Update": request.build_absolute_uri(reverse('semester-update-api', args=['<id>'])),
+            "Delete": request.build_absolute_uri(reverse('semester-delete-api', args=['<id>']))
+        },
         "Subjects": {
             "List": request.build_absolute_uri(reverse('subject-list-api')),
             "Detail View": request.build_absolute_uri(reverse('subject-detail-api', args=['<id>'])),
             "Create": request.build_absolute_uri(reverse('subject-create-api')),
             "Update": request.build_absolute_uri(reverse('subject-update-api', args=['<id>'])),
             "Delete": request.build_absolute_uri(reverse('subject-delete-api', args=['<id>']))
-        },
-        "Notes": {
-            "List": request.build_absolute_uri(reverse('note-list-api')),
-            "Detail View": request.build_absolute_uri(reverse('note-detail-api', args=['<id>'])),
-            "Create": request.build_absolute_uri(reverse('note-create-api')),
-            "Update": request.build_absolute_uri(reverse('note-update-api', args=['<id>'])),
-            "Delete": request.build_absolute_uri(reverse('note-delete-api', args=['<id>']))
         },
         "PastQuestions": {
             "List": request.build_absolute_uri(reverse('pastQuestion-list-api')),
@@ -50,19 +54,19 @@ def apiOverview(request):
             "Update": request.build_absolute_uri(reverse('syllabus-update-api', args=['<id>'])),
             "Delete": request.build_absolute_uri(reverse('syllabus-delete-api', args=['<id>']))
         },
-        "Semesters": {
-            "List": request.build_absolute_uri(reverse('semester-list-api')),
-            "Detail View": request.build_absolute_uri(reverse('semester-detail-api', args=['<id>'])),
-            "Create": request.build_absolute_uri(reverse('semester-create-api')),
-            "Update": request.build_absolute_uri(reverse('semester-update-api', args=['<id>'])),
-            "Delete": request.build_absolute_uri(reverse('semester-delete-api', args=['<id>']))
-        },
         "Chapters": {
             "List": request.build_absolute_uri(reverse('chapter-list-api')),
             "Detail View": request.build_absolute_uri(reverse('chapter-detail-api', args=['<id>'])),
             "Create": request.build_absolute_uri(reverse('chapter-create-api')),
             "Update": request.build_absolute_uri(reverse('chapter-update-api', args=['<id>'])),
             "Delete": request.build_absolute_uri(reverse('chapter-delete-api', args=['<id>']))
+        },
+        "Notes": {
+            "List": request.build_absolute_uri(reverse('note-list-api')),
+            "Detail View": request.build_absolute_uri(reverse('note-detail-api', args=['<id>'])),
+            "Create": request.build_absolute_uri(reverse('note-create-api')),
+            "Update": request.build_absolute_uri(reverse('note-update-api', args=['<id>'])),
+            "Delete": request.build_absolute_uri(reverse('note-delete-api', args=['<id>']))
         }
     }
 
@@ -83,7 +87,7 @@ def courseCreate(request):
 @api_view(['GET'])
 def courseList(request):
     courses = Course.objects.all().order_by('id')  # Ensuring ordered query
-    serializer = CourseSerializer(courses, many=True)
+    serializer = CourseSerializer(courses, many=True,context={'request':request})
     return Response(serializer.data)
 
 @api_view(['GET'])
@@ -144,7 +148,17 @@ def semesterCreate(request):
 
 @api_view(['GET'])
 def semesterList(request):
-    semesters = Semester.objects.all().order_by('id')  # Ensure queryset is ordered
+    """
+    Retrieve a list of semesters. If 'course_id' is provided in the query parameters,
+    filter semesters by the specified course.
+    """
+    course_id = request.GET.get('course_id')  # Get course_id from query parameters
+    
+    if course_id:
+        semesters = Semester.objects.filter(course_id=course_id)  # Filter semesters by course
+    else:
+        semesters = Semester.objects.all()  # Return all semesters if no filter is applied
+    
     serializer = SemesterSerializer(semesters, many=True)
     return Response(serializer.data)
 
@@ -232,8 +246,10 @@ def subjectCreate(request):
 @api_view(['GET'])
 def subjectList(request):
     subjects = Subject.objects.all().order_by('id')  # Ensure queryset is ordered
-    serializer = SubjectSerializer(subjects, many=True)
-    return Response(serializer.data)
+    paginator = StandardResultsSetPagination()
+    result_page = paginator.paginate_queryset(subjects, request)
+    serializer = SubjectSerializer(result_page, many=True)
+    return paginator.get_paginated_response(serializer.data)
 
 
 @api_view(['GET'])
@@ -492,3 +508,4 @@ def chapterDelete(request, pk):
         return Response({'error': 'Chapter not found'}, status=status.HTTP_404_NOT_FOUND)
 
 #-----------------------------------------------------------------------------------------------------------------------------
+
