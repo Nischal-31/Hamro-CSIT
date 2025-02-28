@@ -1,14 +1,18 @@
 from django.shortcuts import render
 from django.http import JsonResponse
-from rest_framework import generics,status
+from rest_framework import generics,status,permissions
 from .models import Subject,Syllabus,Chapter,Semester,Course,Note,PastQuestion
 
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view,permission_classes
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.pagination import PageNumberPagination
 from .serializers import SubjectSerializer,SyllabusSerializer,ChapterSerializer,SemesterSerializer,CourseSerializer,NotesSerializer,PastQuestionsSerializer      
 from django.urls import reverse
+
+from user.models import CustomUser
+from user_api.serializers import UserSerializer
+from user_api.permissions import IsAdminUser, IsAdminOrReadOnly
 
 #-----------------------------------------------------------------------------------------------------------------------------------------------
 class StandardResultsSetPagination(PageNumberPagination):
@@ -17,6 +21,7 @@ class StandardResultsSetPagination(PageNumberPagination):
     max_page_size = 1000
 
 @api_view(['GET'])
+@permission_classes([IsAuthenticated,IsAdminUser]) 
 def apiOverview(request):
     api_urls = {
         "Courses": {
@@ -77,6 +82,7 @@ def apiOverview(request):
 #-------------------------COURSE-----------------------------------
 
 @api_view(['POST'])
+@permission_classes([IsAdminUser]) 
 def courseCreate(request):
     serializer = CourseSerializer(data=request.data)
     if serializer.is_valid():
@@ -85,12 +91,14 @@ def courseCreate(request):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
+@permission_classes([ IsAdminOrReadOnly])
 def courseList(request):
     courses = Course.objects.all().order_by('id')  # Ensuring ordered query
     serializer = CourseSerializer(courses, many=True,context={'request':request})
     return Response(serializer.data)
 
 @api_view(['GET'])
+@permission_classes([ IsAdminOrReadOnly])
 def courseDetail(request, pk):
     try:
         course = Course.objects.get(id=pk)
@@ -101,6 +109,7 @@ def courseDetail(request, pk):
     return Response(serializer.data)
 
 @api_view(['POST'])
+@permission_classes([IsAdminUser])
 def courseUpdate(request, pk):
     try:
         course = Course.objects.get(id=pk)
@@ -125,6 +134,7 @@ def courseUpdate(request, pk):
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 @api_view(['DELETE'])
+@permission_classes([IsAdminUser])
 def courseDelete(request, pk):
     try:
         course = Course.objects.get(id=pk)
@@ -137,6 +147,7 @@ def courseDelete(request, pk):
 #-------------------------SEMESTER-----------------------------------
 
 @api_view(['POST'])
+@permission_classes([IsAdminUser])
 def semesterCreate(request):
     serializer = SemesterSerializer(data=request.data)
     
@@ -147,6 +158,7 @@ def semesterCreate(request):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
+@permission_classes([ IsAdminOrReadOnly]) 
 def semesterList(request):
     """
     Retrieve a list of semesters. If 'course_id' is provided in the query parameters,
@@ -163,6 +175,7 @@ def semesterList(request):
     return Response(serializer.data)
 
 @api_view(['GET'])
+@permission_classes([ IsAdminOrReadOnly]) 
 def semesterDetail(request, pk):
     try:
         semester = Semester.objects.get(id=pk)
@@ -174,6 +187,7 @@ def semesterDetail(request, pk):
 
 
 @api_view(['POST'])
+@permission_classes([IsAdminUser]) 
 def semesterUpdate(request, pk):
     try:
         # Fetch the semester object
@@ -203,6 +217,7 @@ def semesterUpdate(request, pk):
 
 
 @api_view(['DELETE'])
+@permission_classes([IsAdminUser]) 
 def semesterDelete(request, pk):
     try:
         semester = Semester.objects.get(id=pk)
@@ -218,6 +233,7 @@ def semesterDelete(request, pk):
     
 
 @api_view(['POST'])
+@permission_classes([IsAdminUser])
 def subjectCreate(request):
     # Get a mutable copy of the request data
     data = request.data.copy()
@@ -244,6 +260,7 @@ def subjectCreate(request):
  
 
 @api_view(['GET'])
+@permission_classes([ IsAdminOrReadOnly]) 
 def subjectList(request):
     subjects = Subject.objects.all().order_by('id')  # Ensure queryset is ordered
     paginator = StandardResultsSetPagination()
@@ -253,6 +270,7 @@ def subjectList(request):
 
 
 @api_view(['GET'])
+@permission_classes([ IsAdminOrReadOnly]) 
 def subjectDetail(request,pk):
     subjects = Subject.objects.get(id=pk)
     serializer= SubjectSerializer(subjects,many=False)
@@ -260,6 +278,7 @@ def subjectDetail(request,pk):
 
 
 @api_view(['POST'])
+@permission_classes([IsAdminUser]) 
 def subjectUpdate(request,pk):
     subject = Subject.objects.get(id=pk)
     serializer=SubjectSerializer(instance=subject ,data=request.data)
@@ -271,6 +290,7 @@ def subjectUpdate(request,pk):
 
 
 @api_view(['DELETE'])
+@permission_classes([IsAdminUser]) 
 def subjectDelete(request,pk):
     subject = Subject.objects.get(id=pk)
     subject.delete()
@@ -280,6 +300,7 @@ def subjectDelete(request,pk):
 
 #-------------------------NOTES-----------------------------------    
 @api_view(['POST'])
+@permission_classes([IsAdminUser])
 def noteCreate(request):
     if request.method == 'POST':
         data = request.data.copy()
@@ -301,18 +322,21 @@ def noteCreate(request):
 
 
 @api_view(['GET'])
+@permission_classes([ IsAdminOrReadOnly]) 
 def noteList(request):
     notes = Note.objects.all().order_by('id')
     serializer = NotesSerializer(notes, many=True,context={'request':request})
     return Response(serializer.data)
 
 @api_view(['GET'])
+@permission_classes([ IsAdminOrReadOnly]) 
 def noteDetail(request,pk):
     note = Note.objects.get(id=pk)
     serializer= NotesSerializer(note,many=False)
     return Response(serializer.data)
 
 @api_view(['POST'])
+@permission_classes([IsAdminUser]) 
 def noteUpdate(request,pk):
     note = Note.objects.get(id=pk)
     serializer=NotesSerializer(instance=note ,data=request.data)
@@ -324,6 +348,7 @@ def noteUpdate(request,pk):
 
 
 @api_view(['DELETE'])
+@permission_classes([IsAdminUser]) 
 def noteDelete(request,pk):
     note = Note.objects.get(id=pk)
     note.delete()
@@ -334,6 +359,7 @@ def noteDelete(request,pk):
 #-------------------------OLDQUESTIONS-----------------------------------   
 
 @api_view(['POST'])
+@permission_classes([IsAdminUser])
 def pastQuestionCreate(request):
     data = request.data.copy()
     subject_id = data.get('subject')
@@ -355,18 +381,21 @@ def pastQuestionCreate(request):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
+@permission_classes([ IsAdminOrReadOnly]) 
 def pastQuestionList(request):
     pastquestions = PastQuestion.objects.all().order_by('id')
     serializer = PastQuestionsSerializer(pastquestions, many=True)
     return Response(serializer.data)
 
 @api_view(['GET'])
+@permission_classes([ IsAdminOrReadOnly]) 
 def pastQuestionDetail(request,pk):
     pastquestion = PastQuestion.objects.get(id=pk)
     serializer= PastQuestionsSerializer(pastquestion,many=False)
     return Response(serializer.data)
 
 @api_view(['POST'])
+@permission_classes([IsAdminUser]) 
 def pastQuestionUpdate(request,pk):
     pastquestion = PastQuestion.objects.get(id=pk)
     serializer=PastQuestionsSerializer(instance=pastquestion ,data=request.data)
@@ -378,6 +407,7 @@ def pastQuestionUpdate(request,pk):
 
 
 @api_view(['DELETE'])
+@permission_classes([IsAdminUser]) 
 def pastQuestionDelete(request,pk):
     pastquestion = PastQuestion.objects.get(id=pk)
     pastquestion.delete()
@@ -388,6 +418,7 @@ def pastQuestionDelete(request,pk):
 #-------------------------SYLLABUS-----------------------------------    
 
 @api_view(['POST'])
+@permission_classes([IsAdminUser])
 def syllabusCreate(request):
     subject_id = request.data.get('subject')
 
@@ -407,6 +438,7 @@ def syllabusCreate(request):
 
 
 @api_view(['GET'])
+@permission_classes([ IsAdminOrReadOnly]) 
 def syllabusList(request):
     syllabuses = Syllabus.objects.all().order_by('id')
     serializer = SyllabusSerializer(syllabuses, many=True)
@@ -415,6 +447,7 @@ def syllabusList(request):
 
 
 @api_view(['GET'])
+@permission_classes([ IsAdminOrReadOnly]) 
 def syllabusDetail(request, pk):
     try:
         syllabus = Syllabus.objects.get(id=pk)
@@ -426,6 +459,7 @@ def syllabusDetail(request, pk):
 
 
 @api_view(['POST'])
+@permission_classes([IsAdminUser]) 
 def syllabusUpdate(request, pk):
     try:
         syllabus = Syllabus.objects.get(id=pk)
@@ -441,6 +475,7 @@ def syllabusUpdate(request, pk):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['DELETE'])
+@permission_classes([IsAdminUser]) 
 def syllabusDelete(request, pk):
     try:
         syllabus = Syllabus.objects.get(id=pk)
@@ -454,6 +489,7 @@ def syllabusDelete(request, pk):
 #-------------------------CHAPTER-----------------------------------    
 
 @api_view(['POST'])
+@permission_classes([IsAdminUser])
 def chapterCreate(request):
     serializer = ChapterSerializer(data=request.data)
     
@@ -464,6 +500,7 @@ def chapterCreate(request):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
+@permission_classes([ IsAdminOrReadOnly]) 
 def chapterList(request):
     chapters = Chapter.objects.all().order_by('id')
     serializer = ChapterSerializer(chapters, many=True)
@@ -472,6 +509,7 @@ def chapterList(request):
 
 
 @api_view(['GET'])
+@permission_classes([ IsAdminOrReadOnly]) 
 def chapterDetail(request, pk):
     try:
         chapter = Chapter.objects.get(id=pk)
@@ -483,6 +521,7 @@ def chapterDetail(request, pk):
 
 
 @api_view(['POST'])
+@permission_classes([IsAdminUser]) 
 def chapterUpdate(request, pk):
     try:
         chapter = Chapter.objects.get(id=pk)
@@ -499,6 +538,7 @@ def chapterUpdate(request, pk):
 
 
 @api_view(['DELETE'])
+@permission_classes([IsAdminUser]) 
 def chapterDelete(request, pk):
     try:
         chapter = Chapter.objects.get(id=pk)
