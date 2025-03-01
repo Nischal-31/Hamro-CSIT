@@ -7,51 +7,53 @@ urlpatterns = [
     
     # Course URLs
     path('course-list/', views.courseList, name="course-list-api"),
-    path('course-detail/<str:pk>/', views.courseDetail, name="course-detail-api"),
+    path('course-detail/<int:pk>/', views.courseDetail, name="course-detail-api"),
     path('course-create/', views.courseCreate, name="course-create-api"),
-    path('course-update/<str:pk>/', views.courseUpdate, name="course-update-api"),
-    path('course-delete/<str:pk>/', views.courseDelete, name="course-delete-api"),
+    path('course-update/<int:pk>/', views.courseUpdate, name="course-update-api"),
+    path('course-delete/<int:pk>/', views.courseDelete, name="course-delete-api"),
     
     # Semester URLs
     path('semester-list/', views.semesterList, name="semester-list-api"),
-    path('semester-detail/<str:pk>/', views.semesterDetail, name="semester-detail-api"),
-    path('semester-create/', views.semesterCreate, name="semester-create-api"),
-    path('semester-update/<str:pk>/', views.semesterUpdate, name="semester-update-api"),
-    path('semester-delete/<str:pk>/', views.semesterDelete, name="semester-delete-api"),
+    path('semester-list/<int:course_id>/', views.semesterListByCourse, name="semester-list-by-course-api"),  # List semesters by course ID
+    path('semester-detail/<int:pk>/', views.semesterDetail, name="semester-detail-api"),
+    path('semester-create/<int:course_id>/', views.semesterCreate, name="semester-create-api"),
+    path('semester-update/<int:pk>/', views.semesterUpdate, name="semester-update-api"),
+    path('semester-delete/<int:pk>/', views.semesterDelete, name="semester-delete-api"),
 
     # Subject URLs
     path('subject-list/', views.subjectList, name="subject-list-api"),
-    path('subject-detail/<str:pk>/', views.subjectDetail, name="subject-detail-api"),
-    path('subject-create/', views.subjectCreate, name="subject-create-api"),
-    path('subject-update/<str:pk>/', views.subjectUpdate, name="subject-update-api"),
-    path('subject-delete/<str:pk>/', views.subjectDelete, name="subject-delete-api"),
-    
-    # Notes URLs
-    path('note-list/', views.noteList, name="note-list-api"),
-    path('note-detail/<str:pk>/', views.noteDetail, name="note-detail-api"),
-    path('note-create/', views.noteCreate, name="note-create-api"),
-    path('note-update/<str:pk>/', views.noteUpdate, name="note-update-api"),
-    path('note-delete/<str:pk>/', views.noteDelete, name="note-delete-api"),
+    path('subject-detail/<int:pk>/', views.subjectDetail, name="subject-detail-api"),
+    path('subject-create/<int:semester_id>/', views.subjectCreate, name="subject-create-api"),
+    path('subject-update/<int:pk>/', views.subjectUpdate, name="subject-update-api"),
+    path('subject-delete/<int:pk>/', views.subjectDelete, name="subject-delete-api"),
     
      # PastQuestions URLs
     path('pastQuestion-list/', views.pastQuestionList, name="pastQuestion-list-api"),
-    path('pastQuestion-detail/<str:pk>/', views.pastQuestionDetail, name="pastQuestion-detail-api"),
-    path('pastQuestion-create/', views.pastQuestionCreate, name="pastQuestion-create-api"),
-    path('pastQuestion-update/<str:pk>/', views.pastQuestionUpdate, name="pastQuestion-update-api"),
-    path('pastQuestion-delete/<str:pk>/', views.pastQuestionDelete, name="pastQuestion-delete-api"),
+    path('pastQuestion-detail/<int:pk>/', views.pastQuestionDetail, name="pastQuestion-detail-api"),
+    path('pastQuestion-create/<int:subject_id>/', views.pastQuestionCreate, name="pastQuestion-create-api"),
+    path('pastQuestion-update/<int:pk>/', views.pastQuestionUpdate, name="pastQuestion-update-api"),
+    path('pastQuestion-delete/<int:pk>/', views.pastQuestionDelete, name="pastQuestion-delete-api"),
     
 
     # Syllabus URLs
     path('syllabus-list/', views.syllabusList, name="syllabus-list-api"),
-    path('syllabus-detail/<str:pk>/', views.syllabusDetail, name="syllabus-detail-api"),
-    path('syllabus-create/', views.syllabusCreate, name="syllabus-create-api"),
-    path('syllabus-update/<str:pk>/', views.syllabusUpdate, name="syllabus-update-api"),
-    path('syllabus-delete/<str:pk>/', views.syllabusDelete, name="syllabus-delete-api"),
+    path('syllabus-detail/<int:pk>/', views.syllabusDetail, name="syllabus-detail-api"),
+    path('syllabus-create/<int:subject_id>/', views.syllabusCreate, name="syllabus-create-api"),
+    path('syllabus-update/<int:pk>/', views.syllabusUpdate, name="syllabus-update-api"),
+    path('syllabus-delete/<int:pk>/', views.syllabusDelete, name="syllabus-delete-api"),
 
     # Chapter URLs
     path('chapter-list/', views.chapterList, name="chapter-list-api"),
-    path('chapter-detail/<str:pk>/', views.chapterDetail, name="chapter-detail-api"),
-    path('chapter-create/', views.chapterCreate, name="chapter-create-api"),
-    path('chapter-update/<str:pk>/', views.chapterUpdate, name="chapter-update-api"),
-    path('chapter-delete/<str:pk>/', views.chapterDelete, name="chapter-delete-api"),
+    path('chapter-detail/<int:pk>/', views.chapterDetail, name="chapter-detail-api"),
+    path('chapter-create/<int:subject_id>/', views.chapterCreate, name="chapter-create-api"),
+    path('chapter-update/<int:pk>/', views.chapterUpdate, name="chapter-update-api"),
+    path('chapter-delete/<int:pk>/', views.chapterDelete, name="chapter-delete-api"),
+    
+    # Notes URLs
+    path('note-list/', views.noteList, name="note-list-api"),
+    path('note-detail/<int:pk>/', views.noteDetail, name="note-detail-api"),
+    path('note-create/<int:chapter_id>/', views.noteCreate, name="note-create-api"),
+    path('note-update/<int:pk>/', views.noteUpdate, name="note-update-api"),
+    path('note-delete/<int:pk>/', views.noteDelete, name="note-delete-api"),
+    
 ]

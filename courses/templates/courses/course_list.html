@@ -1,15 +1,44 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}About Us{% endblock %}
+
 {% block content %}
-<h1>Course List</h1>
-<ul>
-    {% for course in courses %}
-        <li>
-            <a href="{% url 'course-detail' pk=course.id %}">{{ course.name }}</a> - {{ course.description }}
-        </li>
-    {% empty %}
-        <p>No courses available.</p>
-    {% endfor %}
-</ul>
 
+      <!-- Home -->
+      
+      <section id="about-home">
+        <h2>Courses /</h2>
+</section>
+
+
+<!-- Courses -->
+
+<section id="course">
+<h1>Our Popular Courses</h1>
+<p>Replenish man having thing gathering lights yielding shall you</p>
+{% for course in courses %}
+<div class="course-box">
+  <div class="courses" onclick="window.location.href='{% url 'semester-list' %}?course_id={{ course.id }}';">
+      <img src="{{ course.image }}" alt="{{ course.name }}">
+        <div class="details">
+            <span>{{course.name}}</span>
+            <h6>{{course.description}}</h6>
+            <div class="star">
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <span>(239)</span>
+            </div>
+        </div>
+        <div class="cost">
+            $49.99
+        </div>
+    </div>   
+</div>
+{% endfor %}
 <a href="{% url 'course-create' %}">Create New Course</a>
-
-{% endblock %}
+</section>
+{% endblock %} 

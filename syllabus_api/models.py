@@ -7,15 +7,14 @@ class Course(models.Model):
 
     def __str__(self):
         return self.name
-
 #{
-#    "name": "Computer Science",
-#    "description": "This course covers the fundamentals of computer science, including programming, algorithms, and data structures."
+#    "name": "Bsc-csit",
+#    "description": "Its all about the Bachelor of science in computer science and information technology..",
+#    "image": null
 #}
-
 class Semester(models.Model):
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name="semesters")
-    number = models.IntegerField(unique=True)
+    number = models.IntegerField()
     description = models.TextField(blank=True, null=True)
     
     class Meta:
@@ -25,17 +24,20 @@ class Semester(models.Model):
         return f"Semester {self.number} - {self.course.name}"
 
 #{
-#    "course": 1,   (id of course)
+#    "course": 1,
 #    "number": 1,
-#    "description": "First semester covering basic programming and mathematics."
+#    "description": "This is the first semester of the Bsc-csit course."
 #}
 
 class Subject(models.Model):
     semester = models.ForeignKey(Semester, on_delete=models.CASCADE)  # Foreign key reference to Semester
     name = models.CharField(max_length=255)
-    code = models.CharField(max_length=20, unique=True)
+    code = models.CharField(max_length=20)
     credits = models.IntegerField(default=3)
     description = models.TextField(blank=True, null=True)
+    
+    class Meta:
+        unique_together = ("semester", "code")  #Ensures semesters are unique per course
 
     def __str__(self):
         return f"{self.name} (Sem {self.semester.number})"

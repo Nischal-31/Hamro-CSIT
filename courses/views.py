@@ -3,21 +3,6 @@ from django.shortcuts import render,HttpResponse,redirect
 import requests  # For making HTTP requests
 from django.http import Http404
 
-def courses_view(request):
-    api_url = 'http://127.0.0.1:8000/syllabus_api/course-list/'
-    response = requests.get(api_url)
-
-    if response.status_code == 200:
-        courses = response.json()  # API response with courses
-        print("API Response:", courses)  # Debugging
-    else:
-        courses = []
-
-    return render(request, 'courses/courses.html', {'courses': courses})
-
-
-
-
 #-------------------------------------------------------------------------------------------------------------------
 #                       COURSE VIEWS
 #-------------------------------------------------------------------------------------------------------------------

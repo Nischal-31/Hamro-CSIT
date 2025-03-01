@@ -16,13 +16,13 @@ class CourseSerializer(serializers.ModelSerializer):
         return obj.image.url  # Fallback to the relative URL if request is not found
 
 class SemesterSerializer(serializers.ModelSerializer):
-    course = CourseSerializer()
+    course = serializers.PrimaryKeyRelatedField(queryset=Course.objects.all()) 
     class Meta:
         model = Semester
         fields = ['id', 'course', 'number', 'description']
  
 class SubjectSerializer(serializers.ModelSerializer):
-    semester = SemesterSerializer()
+    semester = serializers.PrimaryKeyRelatedField(queryset=Semester.objects.all()) 
     class Meta:
         model = Subject
         fields = ['id', 'semester', 'name', 'code', 'credits', 'description']
