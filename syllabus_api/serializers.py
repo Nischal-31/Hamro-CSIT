@@ -16,17 +16,28 @@ class CourseSerializer(serializers.ModelSerializer):
         return obj.image.url  # Fallback to the relative URL if request is not found
 
 class SemesterSerializer(serializers.ModelSerializer):
-    course = serializers.PrimaryKeyRelatedField(queryset=Course.objects.all()) 
+    course = CourseSerializer(read_only=True)
     class Meta:
         model = Semester
         fields = ['id', 'course', 'number', 'description']
  
 class SubjectSerializer(serializers.ModelSerializer):
-    semester = serializers.PrimaryKeyRelatedField(queryset=Semester.objects.all()) 
+    semester = SemesterSerializer(read_only=True) # Fetch semester via semester   
+    course = serializers.SerializerMethodField()  # Fetch course via semester
+
     class Meta:
         model = Subject
-        fields = ['id', 'semester', 'name', 'code', 'credits', 'description']
+        fields = ['id', 'semester', 'course', 'name', 'code', 'credits', 'description']
 
+    def get_course(self, obj):
+        # Access course through the semester relationship
+        return CourseSerializer(obj.semester.course).data
+
+class PastQuestionsSerializer(serializers.ModelSerializer):
+    subject = SubjectSerializer()  
+    class Meta:
+        model = PastQuestion
+        fields = ['id', 'subject', 'year', 'title', 'description', 'file']
              
 class SyllabusSerializer(serializers.ModelSerializer):
     subject = SubjectSerializer()
@@ -54,9 +65,5 @@ class NotesSerializer(serializers.ModelSerializer):
             return request.build_absolute_uri(obj.file.url)  # Build the full URL
         return obj.file.url  # Fallback to the relative URL if request is not found
     
-class PastQuestionsSerializer(serializers.ModelSerializer):
-    subject = SubjectSerializer()
-    class Meta:
-        model = PastQuestion
-        fields = ['id', 'subject', 'year', 'title', 'description', 'file']
+
 

@@ -55,10 +55,35 @@ class PastQuestion(models.Model):
     year = models.IntegerField()
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
-    file = models.FileField(upload_to='past_questions/')  # File upload for the past question papers
+    file = models.FileField(upload_to='past_questions/',null=True, blank=True)  # File upload for the past question papers
 
+    class Meta:
+        unique_together = ("subject", "year") 
+    
     def __str__(self):
         return f"Past Question {self.year} - {self.title}"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 class Syllabus(models.Model):
     subject = models.OneToOneField(Subject, on_delete=models.CASCADE, related_name="syllabus")

@@ -38,7 +38,8 @@ def apiOverview(request):
             "Delete": request.build_absolute_uri(reverse('semester-delete-api', args=[1]))
         },
         "Subjects": {
-            "List": request.build_absolute_uri(reverse('subject-list-api')),
+            "List All": request.build_absolute_uri(reverse('subject-list-api')),
+            "List By Semester": request.build_absolute_uri(reverse('subject-list-by-semester-api', args=[1])),
             "Detail View": request.build_absolute_uri(reverse('subject-detail-api', args=[1])),
             "Create": request.build_absolute_uri(reverse('subject-create-api',args=[1])),
             "Update": request.build_absolute_uri(reverse('subject-update-api', args=[1])),
@@ -240,43 +241,53 @@ def semesterDelete(request, pk):
 
 #-------------------------SUBJECT-----------------------------------    
     
-
 @api_view(['POST'])
-@permission_classes([IsAuthenticated,IsAdminUser])
-def subjectCreate(request):
-    # Get a mutable copy of the request data
-    data = request.data.copy()
-
-    # Get the semester_id from the request
-    semester_id = data.get('semester')
-
-    # Check if the semester_id exists
+@permission_classes([IsAuthenticated, IsAdminUser])
+def subjectCreate(request, semester_id):
+    # Ensure the semester_id is valid
     try:
         semester = Semester.objects.get(id=semester_id)
     except Semester.DoesNotExist:
-        return Response({'error': 'Semester not found'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"detail": "Semester not found."}, status=status.HTTP_404_NOT_FOUND)
+    
+    # Add the semester_id to the request data so that it can be used in the serializer
+    request.data['semester'] = semester.id  # this will be passed to the serializer
 
-    # Assign the correct semester instance to data
-    data['semester'] = semester.id
+    # Create the subject using the serializer
+    serializer = SubjectSerializer(data=request.data)
 
-    # Serialize and save
-    serializer = SubjectSerializer(data=data)
     if serializer.is_valid():
-        serializer.save()
+        serializer.save()  # Save the new subject
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
- 
 
 @api_view(['GET'])
 @permission_classes([ IsAuthenticated,IsAdminOrReadOnly]) 
 def subjectList(request):
-    subjects = Subject.objects.all().order_by('id')  # Ensure queryset is ordered
-    paginator = StandardResultsSetPagination()
-    result_page = paginator.paginate_queryset(subjects, request)
-    serializer = SubjectSerializer(result_page, many=True)
-    return paginator.get_paginated_response(serializer.data)
+    """
+    Retrieve all subjects.
+    """
+    subjects = Subject.objects.all().order_by('id')
+    serializer = SubjectSerializer(subjects, many=True, context={'request': request})  # Add request context here
+    return Response(serializer.data)
 
+@api_view(['GET'])
+@permission_classes([IsAuthenticated, IsAdminOrReadOnly])
+def subjectListBySemester(request, semester_id):
+    """
+    Retrieve subjects by semester ID.
+    """
+    # Ensure we filter subjects by semester_id
+    subjects = Subject.objects.filter(semester_id=semester_id).order_by('id')
+    
+    # If no subjects are found for that semester, return an empty list or a message
+    if not subjects.exists():
+        return Response({"detail": "No subjects found for this semester."}, status=404)
+    
+    # Use SubjectSerializer to serialize subjects, not SemesterSerializer
+    serializer = SubjectSerializer(subjects, many=True, context={'request': request})
+    return Response(serializer.data)
 
 @api_view(['GET'])
 @permission_classes([ IsAuthenticated,IsAdminOrReadOnly]) 
@@ -303,91 +314,34 @@ def subjectUpdate(request,pk):
 def subjectDelete(request,pk):
     subject = Subject.objects.get(id=pk)
     subject.delete()
-    return Response('Subject successfully Deleted!')
-
-#--------------------------------------------------------------------------------------------------------------------
-
-#-------------------------NOTES-----------------------------------    
-@api_view(['POST'])
-@permission_classes([IsAuthenticated,IsAdminUser])
-def noteCreate(request):
-    if request.method == 'POST':
-        data = request.data.copy()
-        
-        # Extract file from request.FILES
-        file = request.FILES.get('file')
-
-        # Ensure a file was uploaded
-        if not file:
-            return Response({'error': 'No file uploaded'}, status=400)
-        
-        # Create and save note
-        serializer = NotesSerializer(data=data)
-        if serializer.is_valid():
-            serializer.save(file=file)
-            return Response(serializer.data, status=201)
-        
-        return Response(serializer.errors, status=400)
-
-
-@api_view(['GET'])
-@permission_classes([IsAuthenticated, IsAdminOrReadOnly]) 
-def noteList(request):
-    notes = Note.objects.all().order_by('id')
-    serializer = NotesSerializer(notes, many=True,context={'request':request})
-    return Response(serializer.data)
-
-@api_view(['GET'])
-@permission_classes([IsAuthenticated, IsAdminOrReadOnly]) 
-def noteDetail(request,pk):
-    note = Note.objects.get(id=pk)
-    serializer= NotesSerializer(note,many=False)
-    return Response(serializer.data)
-
-@api_view(['POST'])
-@permission_classes([IsAuthenticated,IsAdminUser]) 
-def noteUpdate(request,pk):
-    note = Note.objects.get(id=pk)
-    serializer=NotesSerializer(instance=note ,data=request.data)
-    
-    if serializer.is_valid():
-        serializer.save()
-        
-    return Response(serializer.data)
-
-
-@api_view(['DELETE'])
-@permission_classes([IsAuthenticated,IsAdminUser]) 
-def noteDelete(request,pk):
-    note = Note.objects.get(id=pk)
-    note.delete()
-    return Response('Note successfully Deleted!')
+    return Response('Subject successfully Deleted!')  
 
 #--------------------------------------------------------------------------------------------------------------------
 
 #-------------------------OLDQUESTIONS-----------------------------------   
 
 @api_view(['POST'])
-@permission_classes([IsAuthenticated,IsAdminUser])
-def pastQuestionCreate(request):
-    data = request.data.copy()
-    subject_id = data.get('subject')
-
-    # Check if the subject exists
+@permission_classes([IsAuthenticated, IsAdminUser])
+def pastQuestionCreate(request, subject_id):
+    # Ensure the subject_id is valid
     try:
         subject = Subject.objects.get(id=subject_id)
     except Subject.DoesNotExist:
-        return Response({'error': 'Subject not found'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"detail": "Subject not found."}, status=status.HTTP_404_NOT_FOUND)
 
-    # Assign the subject instance
-    data['subject'] = subject.id
+    # Add the subject_id to the request data so that it can be used in the serializer
+    data = request.data.copy()  # Copy request data to modify safely
+    data['subject'] = subject.id  # Assign correct subject_id
 
+    # Create the past question using the serializer
     serializer = PastQuestionsSerializer(data=data)
+
     if serializer.is_valid():
-        serializer.save()
+        serializer.save()  # Save the new past question
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated, IsAdminOrReadOnly]) 
@@ -557,4 +511,62 @@ def chapterDelete(request, pk):
         return Response({'error': 'Chapter not found'}, status=status.HTTP_404_NOT_FOUND)
 
 #-----------------------------------------------------------------------------------------------------------------------------
+#--------------------------------------------------------------------------------------------------------------------
+
+#-------------------------NOTES-----------------------------------  
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated,IsAdminUser])
+def noteCreate(request):
+    if request.method == 'POST':
+        data = request.data.copy()
+        
+        # Extract file from request.FILES
+        file = request.FILES.get('file')
+
+        # Ensure a file was uploaded
+        if not file:
+            return Response({'error': 'No file uploaded'}, status=400)
+        
+        # Create and save note
+        serializer = NotesSerializer(data=data)
+        if serializer.is_valid():
+            serializer.save(file=file)
+            return Response(serializer.data, status=201)
+        
+        return Response(serializer.errors, status=400)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated, IsAdminOrReadOnly]) 
+def noteList(request):
+    notes = Note.objects.all().order_by('id')
+    serializer = NotesSerializer(notes, many=True,context={'request':request})
+    return Response(serializer.data)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated, IsAdminOrReadOnly]) 
+def noteDetail(request,pk):
+    note = Note.objects.get(id=pk)
+    serializer= NotesSerializer(note,many=False)
+    return Response(serializer.data)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated,IsAdminUser]) 
+def noteUpdate(request,pk):
+    note = Note.objects.get(id=pk)
+    serializer=NotesSerializer(instance=note ,data=request.data)
+    
+    if serializer.is_valid():
+        serializer.save()
+        
+    return Response(serializer.data)
+
+
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated,IsAdminUser]) 
+def noteDelete(request,pk):
+    note = Note.objects.get(id=pk)
+    note.delete()
+    return Response('Note successfully Deleted!')
 

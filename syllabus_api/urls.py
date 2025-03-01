@@ -22,6 +22,7 @@ urlpatterns = [
 
     # Subject URLs
     path('subject-list/', views.subjectList, name="subject-list-api"),
+    path('subject-list/<int:semester_id>/', views.subjectListBySemester, name="subject-list-by-semester-api"),  # List subjects by semester ID
     path('subject-detail/<int:pk>/', views.subjectDetail, name="subject-detail-api"),
     path('subject-create/<int:semester_id>/', views.subjectCreate, name="subject-create-api"),
     path('subject-update/<int:pk>/', views.subjectUpdate, name="subject-update-api"),
@@ -29,6 +30,7 @@ urlpatterns = [
     
      # PastQuestions URLs
     path('pastQuestion-list/', views.pastQuestionList, name="pastQuestion-list-api"),
+    #path('pastQuestion-list/<int:subject_id>/', views.pastQuestionListBySubject, name="pastQuestion-list-by-subject-api"),  # List oldQuestions by subject ID
     path('pastQuestion-detail/<int:pk>/', views.pastQuestionDetail, name="pastQuestion-detail-api"),
     path('pastQuestion-create/<int:subject_id>/', views.pastQuestionCreate, name="pastQuestion-create-api"),
     path('pastQuestion-update/<int:pk>/', views.pastQuestionUpdate, name="pastQuestion-update-api"),

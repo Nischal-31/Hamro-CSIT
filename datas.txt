@@ -1,0 +1,75 @@
+            Course Create
+{
+    "name": "Bsc-csit",
+    "description": "Its all about the Bachelor of science in computer science and information technology..",
+    "image": null
+}
+{
+    "name": "BCA",
+    "description": "Its all about the Bachelor in Computer Application..",
+    "image": null
+}
+            Semester Create
+{
+    "course": 1,
+    "number": 1,
+    "description": "This is the first semester of the Bsc-csit course."
+}
+{
+    "course": 1,
+    "number": 2,
+    "description": "This is the Second semester of the Bsc-csit course."
+}
+{
+    "course": 2,
+    "number": 1,
+    "description": "This is the first semester of the BCA course."
+}
+{
+    "course": 2,
+    "number": 2,
+    "description": "This is the Second semester of the BCA course."
+}
+
+             Subject Create
+{
+    "semester": 1,
+    "name": "Object-Oriented Programming",
+    "code": "OOP100",
+    "credits": 3,
+    "description": "This course covers object-oriented programming concepts using C++."
+}
+{
+    "semester": 1,
+    "name": "Maths",
+    "code": "MTH100",
+    "credits": 3,
+    "description": "This course covers object-oriented programming concepts using C++."
+}
+{
+    "semester": 2,
+    "name": "Science",
+    "code": "SCI100",
+    "credits": 3,
+    "description": "This course covers SCIENCE."
+}
+{
+    "semester": 2,
+    "name": "OPT MATHS",
+    "code": "OMTH100",
+    "credits": 3,
+    "description": "This course covers optional maths."
+}
+
+1. Check the Relationships and Models Again:
+Course has a ForeignKey to Semester.
+Semester has a ForeignKey to Course.
+Subject has a ForeignKey to Semester.
+
+                     PastQuestion Create
+{
+    "subject": 1,
+    "year": 2022,
+    "title": "Midterm Exam - Object-Oriented Programming",
+    "description": "This is the midterm exam for Object-Oriented Programming (OOP) course."
+}
