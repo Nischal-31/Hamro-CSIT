@@ -632,7 +632,7 @@ def noteList(request):
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated, IsAdminOrReadOnly])
-def noteListBySubject(request, chapter_id):
+def noteListByChapter(request, chapter_id):
     """
     Retrieve notes by chapter ID.
     """
