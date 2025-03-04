@@ -16,13 +16,13 @@ class CourseSerializer(serializers.ModelSerializer):
         return obj.image.url  # Fallback to the relative URL if request is not found
 
 class SemesterSerializer(serializers.ModelSerializer):
-    course = CourseSerializer(read_only=True)
+    course = serializers.PrimaryKeyRelatedField(queryset=Course.objects.all()) 
     class Meta:
         model = Semester
         fields = ['id', 'course', 'number', 'description']
  
 class SubjectSerializer(serializers.ModelSerializer):
-    semester = SemesterSerializer(read_only=True) # Fetch semester via semester   
+    semester = serializers.PrimaryKeyRelatedField(queryset=Semester.objects.all())
     course = serializers.SerializerMethodField()  # Fetch course via semester
 
     class Meta:
@@ -34,25 +34,25 @@ class SubjectSerializer(serializers.ModelSerializer):
         return CourseSerializer(obj.semester.course).data
 
 class PastQuestionsSerializer(serializers.ModelSerializer):
-    subject = SubjectSerializer()  
+    subject = serializers.PrimaryKeyRelatedField(queryset=Subject.objects.all())
     class Meta:
         model = PastQuestion
         fields = ['id', 'subject', 'year', 'title', 'description', 'file']
              
 class SyllabusSerializer(serializers.ModelSerializer):
-    subject = SubjectSerializer()
+    subject = serializers.PrimaryKeyRelatedField(queryset=Subject.objects.all())
     class Meta: 
         model = Syllabus
         fields = ['id', 'subject', 'objectives', 'content', 'references']
 
 class ChapterSerializer(serializers.ModelSerializer):
-    subject = SubjectSerializer()
+    subject = serializers.PrimaryKeyRelatedField(queryset=Subject.objects.all())
     class Meta:
         model = Chapter
         fields = ['id', 'subject', 'title', 'description', 'order']
 
 class NotesSerializer(serializers.ModelSerializer):
-    chapter = ChapterSerializer() 
+    chapter = serializers.PrimaryKeyRelatedField(queryset=Chapter.objects.all())
     class Meta:
         model = Note
         fields = ['id', 'chapter', 'title', 'description', 'file']

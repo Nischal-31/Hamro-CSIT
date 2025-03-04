@@ -63,34 +63,12 @@ class PastQuestion(models.Model):
     def __str__(self):
         return f"Past Question {self.year} - {self.title}"
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 class Syllabus(models.Model):
     subject = models.OneToOneField(Subject, on_delete=models.CASCADE, related_name="syllabus")
     objectives = models.TextField(blank=True, null=True)
     content = models.JSONField()  # Markdown or JSON format can be used
     references = models.JSONField(blank=True, null=True)  # List of reference books/resources
-
+    
     def __str__(self):
         return f"Syllabus of {self.subject.name}"
 
@@ -102,6 +80,7 @@ class Chapter(models.Model):
 
     class Meta:
         ordering = ["order"]
+        unique_together = ("subject", "order") 
 
     def __str__(self):
         return f"{self.title} - {self.subject.name}"    
@@ -111,7 +90,10 @@ class Note(models.Model):
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
     file = models.FileField(upload_to='notes/')  # File upload for the notes
-
+    
+    class Meta:
+        unique_together = ("chapter", "title") 
+    
     def __str__(self):
         return self.title
     

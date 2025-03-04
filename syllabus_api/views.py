@@ -46,28 +46,32 @@ def apiOverview(request):
             "Delete": request.build_absolute_uri(reverse('subject-delete-api', args=[1]))
         },
         "PastQuestions": {
-            "List": request.build_absolute_uri(reverse('pastQuestion-list-api')),
+            "List All": request.build_absolute_uri(reverse('pastQuestion-list-api')),
+            "List By Subject": request.build_absolute_uri(reverse('pastQuestion-list-by-subject-api', args=[1])),
             "Detail View": request.build_absolute_uri(reverse('pastQuestion-detail-api', args=[1])),
             "Create": request.build_absolute_uri(reverse('pastQuestion-create-api',args=[1])),
             "Update": request.build_absolute_uri(reverse('pastQuestion-update-api', args=[1])),
             "Delete": request.build_absolute_uri(reverse('pastQuestion-delete-api', args=[1]))
         },
         "Syllabus": {
-            "List": request.build_absolute_uri(reverse('syllabus-list-api')),
+            "List All": request.build_absolute_uri(reverse('syllabus-list-api')),
+            "List By Subject": request.build_absolute_uri(reverse('syllabus-list-by-subject-api', args=[1])),
             "Detail View": request.build_absolute_uri(reverse('syllabus-detail-api', args=[1])),
             "Create": request.build_absolute_uri(reverse('syllabus-create-api',args=[1])),
             "Update": request.build_absolute_uri(reverse('syllabus-update-api', args=[1])),
             "Delete": request.build_absolute_uri(reverse('syllabus-delete-api', args=[1]))
         },
         "Chapters": {
-            "List": request.build_absolute_uri(reverse('chapter-list-api')),
+            "List All": request.build_absolute_uri(reverse('chapter-list-api')),
+            "List By Subject": request.build_absolute_uri(reverse('chapter-list-by-subject-api', args=[1])),
             "Detail View": request.build_absolute_uri(reverse('chapter-detail-api', args=[1])),
             "Create": request.build_absolute_uri(reverse('chapter-create-api',args=[1])),
             "Update": request.build_absolute_uri(reverse('chapter-update-api', args=[1])),
             "Delete": request.build_absolute_uri(reverse('chapter-delete-api', args=[1]))
         },
         "Notes": {
-            "List": request.build_absolute_uri(reverse('note-list-api')),
+            "List All": request.build_absolute_uri(reverse('note-list-api')),
+            "List By Chapter": request.build_absolute_uri(reverse('note-list-by-chapter-api', args=[1])),
             "Detail View": request.build_absolute_uri(reverse('note-detail-api', args=[1])),
             "Create": request.build_absolute_uri(reverse('note-create-api',args=[1])),
             "Update": request.build_absolute_uri(reverse('note-update-api', args=[1])),
@@ -347,7 +351,24 @@ def pastQuestionCreate(request, subject_id):
 @permission_classes([IsAuthenticated, IsAdminOrReadOnly]) 
 def pastQuestionList(request):
     pastquestions = PastQuestion.objects.all().order_by('id')
-    serializer = PastQuestionsSerializer(pastquestions, many=True)
+    serializer = PastQuestionsSerializer(pastquestions, many=True,context={'request':request})
+    return Response(serializer.data)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated, IsAdminOrReadOnly])
+def pastQuestionListBySubject(request, subject_id):
+    """
+    Retrieve pastQuestions by subject ID.
+    """
+    # Ensure we filter pastQuestions by subject_id
+    pastQuestions = PastQuestion.objects.filter(subject_id=subject_id).order_by('id')
+    
+    # If no pastQuestions are found for that subject, return an empty list or a message
+    if not pastQuestions.exists():
+        return Response({"detail": "No pastQuestions found for this subject."}, status=404)
+    
+    # Use PastQuestionSerializer to serialize subjects, not SemesterSerializer
+    serializer = PastQuestionsSerializer(pastQuestions, many=True, context={'request': request})
     return Response(serializer.data)
 
 @api_view(['GET'])
@@ -380,22 +401,31 @@ def pastQuestionDelete(request,pk):
 
 #-------------------------SYLLABUS-----------------------------------    
 
-@api_view(['POST'])
-@permission_classes([IsAuthenticated,IsAdminUser])
-def syllabusCreate(request):
-    subject_id = request.data.get('subject')
 
-    # Check if a syllabus for this subject already exists
+@api_view(['POST'])
+@permission_classes([IsAuthenticated, IsAdminUser])
+def syllabusCreate(request, subject_id):
+    # Ensure the subject_id is valid
+    try:
+        subject = Subject.objects.get(id=subject_id)
+    except Subject.DoesNotExist:
+        return Response({"detail": "Subject not found."}, status=status.HTTP_404_NOT_FOUND)
+
+    # Add the subject_id to the request data so that it can be used in the serializer
+    data = request.data.copy()  # Copy request data to modify safely
+    data['subject'] = subject.id  # Assign correct subject_id
+    
+        # Check if a syllabus for this subject already exists
     syllabus, created = Syllabus.objects.get_or_create(subject_id=subject_id)
 
     serializer = SyllabusSerializer(syllabus, data=request.data, partial=True)  # Allow partial updates
 
+    # Create the past question using the serializer
+    serializer = SyllabusSerializer(data=data)
+
     if serializer.is_valid():
-        serializer.save()
-        if created:
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        else:
-            return Response(serializer.data, status=status.HTTP_200_OK)  # Updated syllabus
+        serializer.save()  # Save the new syllabus
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -404,8 +434,25 @@ def syllabusCreate(request):
 @permission_classes([IsAuthenticated, IsAdminOrReadOnly]) 
 def syllabusList(request):
     syllabuses = Syllabus.objects.all().order_by('id')
-    serializer = SyllabusSerializer(syllabuses, many=True)
+    serializer = SyllabusSerializer(syllabuses, many=True,context={'request':request})
 
+    return Response(serializer.data)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated, IsAdminOrReadOnly])
+def syllabusListBySubject(request, subject_id):
+    """
+    Retrieve syllabus by subject ID.
+    """
+    # Ensure we filter syllabus by subject_id
+    syllabus = Syllabus.objects.filter(subject_id=subject_id).order_by('id')
+    
+    # If no syllabus are found for that subject, return an empty list or a message
+    if not syllabus.exists():
+        return Response({"detail": "No syllabus found for this subject."}, status=404)
+    
+    # Use SyllabusSerializer to serialize subjects, not SemesterSerializer
+    serializer = SyllabusSerializer(syllabus, many=True, context={'request': request})
     return Response(serializer.data)
 
 
@@ -452,24 +499,52 @@ def syllabusDelete(request, pk):
 #-------------------------CHAPTER-----------------------------------    
 
 @api_view(['POST'])
-@permission_classes([IsAuthenticated,IsAdminUser])
-def chapterCreate(request):
-    serializer = ChapterSerializer(data=request.data)
-    
+@permission_classes([IsAuthenticated, IsAdminUser])
+def chapterCreate(request, subject_id):
+    # Ensure the subject_id is valid
+    try:
+        subject = Subject.objects.get(id=subject_id)
+    except Subject.DoesNotExist:
+        return Response({"detail": "Subject not found."}, status=status.HTTP_404_NOT_FOUND)
+
+    # Add the subject_id to the request data so that it can be used in the serializer
+    data = request.data.copy()  # Copy request data to modify safely
+    data['subject'] = subject.id  # Assign correct subject_id
+
+    # Create the past question using the serializer
+    serializer = ChapterSerializer(data=data)
+
     if serializer.is_valid():
-        serializer.save()
+        serializer.save()  # Save the new chapter
         return Response(serializer.data, status=status.HTTP_201_CREATED)
-    
+
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 @api_view(['GET'])
 @permission_classes([ IsAuthenticated,IsAdminOrReadOnly]) 
 def chapterList(request):
     chapters = Chapter.objects.all().order_by('id')
-    serializer = ChapterSerializer(chapters, many=True)
+    serializer = ChapterSerializer(chapters, many=True,context={'request':request})
 
     return Response(serializer.data)
 
+@api_view(['GET'])
+@permission_classes([IsAuthenticated, IsAdminOrReadOnly])
+def chapterListBySubject(request, subject_id):
+    """
+    Retrieve chapter subject ID.
+    """
+    # Ensure we filter chapters by subject_id
+    chapters = Chapter.objects.filter(subject_id=subject_id).order_by('id')
+    
+    # If no chapters are found for that subject, return an empty list or a message
+    if not chapters.exists():
+        return Response({"detail": "No chapters found for this subject."}, status=404)
+    
+    # Use ChapterSerializer to serialize subjects, not SemesterSerializer
+    serializer = ChapterSerializer(chapters, many=True, context={'request': request})
+    return Response(serializer.data)
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated, IsAdminOrReadOnly]) 
@@ -516,8 +591,18 @@ def chapterDelete(request, pk):
 #-------------------------NOTES-----------------------------------  
 
 @api_view(['POST'])
-@permission_classes([IsAuthenticated,IsAdminUser])
-def noteCreate(request):
+@permission_classes([IsAuthenticated, IsAdminUser])
+def noteCreate(request, chapter_id):
+    # Ensure the chapter_id is valid
+    try:
+        chapter = Chapter.objects.get(id=chapter_id)
+    except Chapter.DoesNotExist:
+        return Response({"detail": "Chapter not found."}, status=status.HTTP_404_NOT_FOUND)
+
+    # Add the chapter_id to the request data so that it can be used in the serializer
+    data = request.data.copy()  # Copy request data to modify safely
+    data['chapter'] = chapter.id  # Assign correct chapter_id
+
     if request.method == 'POST':
         data = request.data.copy()
         
@@ -528,13 +613,14 @@ def noteCreate(request):
         if not file:
             return Response({'error': 'No file uploaded'}, status=400)
         
-        # Create and save note
-        serializer = NotesSerializer(data=data)
-        if serializer.is_valid():
-            serializer.save(file=file)
-            return Response(serializer.data, status=201)
-        
-        return Response(serializer.errors, status=400)
+    # Create the past question using the serializer
+    serializer = NotesSerializer(data=data)
+
+    if serializer.is_valid():
+        serializer.save(file=file)  # Save the new note
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['GET'])
@@ -543,6 +629,24 @@ def noteList(request):
     notes = Note.objects.all().order_by('id')
     serializer = NotesSerializer(notes, many=True,context={'request':request})
     return Response(serializer.data)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated, IsAdminOrReadOnly])
+def noteListBySubject(request, chapter_id):
+    """
+    Retrieve notes by chapter ID.
+    """
+    # Ensure we filter notes by chapter_id
+    notes = Note.objects.filter(chapter_id=chapter_id).order_by('id')
+    
+    # If no notes are found for that chapter, return an empty list or a message
+    if not notes.exists():
+        return Response({"detail": "No notes found for this chapter."}, status=404)
+    
+    # Use NoteSerializer to serialize chapters, not SemesterSerializer
+    serializer = NotesSerializer(notes, many=True, context={'request': request})
+    return Response(serializer.data)
+
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated, IsAdminOrReadOnly]) 

@@ -30,7 +30,7 @@ urlpatterns = [
     
      # PastQuestions URLs
     path('pastQuestion-list/', views.pastQuestionList, name="pastQuestion-list-api"),
-    #path('pastQuestion-list/<int:subject_id>/', views.pastQuestionListBySubject, name="pastQuestion-list-by-subject-api"),  # List oldQuestions by subject ID
+    path('pastQuestion-list/<int:subject_id>/', views.pastQuestionListBySubject, name="pastQuestion-list-by-subject-api"),  # List oldQuestions by subject ID
     path('pastQuestion-detail/<int:pk>/', views.pastQuestionDetail, name="pastQuestion-detail-api"),
     path('pastQuestion-create/<int:subject_id>/', views.pastQuestionCreate, name="pastQuestion-create-api"),
     path('pastQuestion-update/<int:pk>/', views.pastQuestionUpdate, name="pastQuestion-update-api"),
@@ -39,6 +39,7 @@ urlpatterns = [
 
     # Syllabus URLs
     path('syllabus-list/', views.syllabusList, name="syllabus-list-api"),
+    path('syllabus-list/<int:subject_id>/', views.syllabusListBySubject, name="syllabus-list-by-subject-api"),  # List syllabus by subject ID
     path('syllabus-detail/<int:pk>/', views.syllabusDetail, name="syllabus-detail-api"),
     path('syllabus-create/<int:subject_id>/', views.syllabusCreate, name="syllabus-create-api"),
     path('syllabus-update/<int:pk>/', views.syllabusUpdate, name="syllabus-update-api"),
@@ -46,6 +47,7 @@ urlpatterns = [
 
     # Chapter URLs
     path('chapter-list/', views.chapterList, name="chapter-list-api"),
+    path('chapter-list/<int:subject_id>/', views.chapterListBySubject, name="chapter-list-by-subject-api"),  # List chapter by subject ID
     path('chapter-detail/<int:pk>/', views.chapterDetail, name="chapter-detail-api"),
     path('chapter-create/<int:subject_id>/', views.chapterCreate, name="chapter-create-api"),
     path('chapter-update/<int:pk>/', views.chapterUpdate, name="chapter-update-api"),
@@ -53,6 +55,7 @@ urlpatterns = [
     
     # Notes URLs
     path('note-list/', views.noteList, name="note-list-api"),
+    path('note-list/<int:chapter_id>/', views.noteListByChapter, name="note-list-by-chapter-api"),  # List note by chapter ID
     path('note-detail/<int:pk>/', views.noteDetail, name="note-detail-api"),
     path('note-create/<int:chapter_id>/', views.noteCreate, name="note-create-api"),
     path('note-update/<int:pk>/', views.noteUpdate, name="note-update-api"),

@@ -73,3 +73,85 @@ Subject has a ForeignKey to Semester.
     "title": "Midterm Exam - Object-Oriented Programming",
     "description": "This is the midterm exam for Object-Oriented Programming (OOP) course."
 }
+
+
+{ 
+    "subject": 2,
+    "year": 2025,
+    "title": "Midterm Exam - Mathematics",
+    "description": "This is the midterm exam for Mathematics course."
+}
+
+
+                      FOR NESTED DATAS:
+
+from rest_framework import serializers
+from .models import PastQuestion, Subject, Semester, Course
+
+# Assuming you already have these serializers created:
+
+class CourseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Course
+        fields = ['id', 'name', 'description', 'image']
+
+class SemesterSerializer(serializers.ModelSerializer):
+    course = CourseSerializer(read_only=True)  # Serialize the course via the semester
+
+    class Meta:
+        model = Semester
+        fields = ['id', 'course', 'number', 'description']
+
+class SubjectSerializer(serializers.ModelSerializer):
+    semester = SemesterSerializer(read_only=True)  # Serialize the semester, which will include course
+    course = serializers.SerializerMethodField()  # Get course from the related semester
+
+    class Meta:
+        model = Subject
+        fields = ['id', 'semester', 'course', 'name', 'code', 'credits', 'description']
+
+    def get_course(self, obj):
+        # Get the related course via the semester
+        return CourseSerializer(obj.semester.course).data
+
+class PastQuestionsSerializer(serializers.ModelSerializer):
+    subject = SubjectSerializer()  # Nested SubjectSerializer
+
+    class Meta:
+        model = PastQuestion
+        fields = ['id', 'subject', 'year', 'title', 'description', 'file']
+
+
+AND OUTPUT:
+{
+    "id": 1,
+    "subject": {
+        "id": 1,
+        "semester": {
+            "id": 1,
+            "course": {
+                "id": 1,
+                "name": "Bsc-csit",
+                "description": "Bachelor of science in computer science and information technology.",
+                "image": "/media/course_images/course_image.jpg"
+            },
+            "number": 1,
+            "description": "First semester of the BSc-CSIT course."
+        },
+        "course": {
+            "id": 1,
+            "name": "Bsc-csit",
+            "description": "Bachelor of science in computer science and information technology.",
+            "image": "/media/course_images/course_image.jpg"
+        },
+        "name": "Object-Oriented Programming",
+        "code": "OOP100",
+        "credits": 3,
+        "description": "This is an OOP course using C++."
+    },
+    "year": 2022,
+    "title": "Midterm Exam - Object-Oriented Programming",
+    "description": "Midterm exam for the Object-Oriented Programming course.",
+    "file": "/media/past_questions/oop_midterm_2022.pdf"
+}
+
