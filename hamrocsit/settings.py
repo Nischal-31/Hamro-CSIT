@@ -59,14 +59,16 @@ INSTALLED_APPS = [
     'user_api',
         
 ]
-
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.SessionAuthentication',
-        'rest_framework.authentication.TokenAuthentication',  # Example for Token Authentication
+        'rest_framework.authentication.TokenAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',  # Or your custom permission class
     ],
 }
 
+CSRF_TRUSTED_ORIGINS = ['http://127.0.0.1:8000']
 
 SITE_ID = 7
 
@@ -198,3 +200,9 @@ LOGOUT_REDIRECT_URL = 'index'
 ACCOUNT_LOGOUT_REDIRECT_URL = 'account_login'
 
 SOCIALACCOUNT_LOGIN_ON_GET = True
+
+
+# settings.py
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # or other backend like cache or file
+SESSION_COOKIE_AGE = 60 * 60 * 24  # 1 day
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True

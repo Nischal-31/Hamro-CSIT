@@ -1,24 +1,45 @@
 # courses/views.py
 from django.shortcuts import render,HttpResponse,redirect
 import requests  # For making HTTP requests
-from django.http import Http404
+from django.http import Http404, JsonResponse
 
 #-------------------------------------------------------------------------------------------------------------------
 #                       COURSE VIEWS
 #-------------------------------------------------------------------------------------------------------------------
-
+import requests
+from django.http import JsonResponse
+from django.shortcuts import render
 
 def course_list_view(request):
     api_url = 'http://127.0.0.1:8000/syllabus_api/course-list/'
-    response = requests.get(api_url)
+    
+    # Retrieve token from session
+    token = request.session.get('auth_token')  # Check the correct key here
+    if not token:
+        print("No token found in session.")
+        return JsonResponse({'error': 'Authentication required, please login first.'}, status=401)
+
+    headers = {
+        'Authorization': f'Bearer {token}'  # Include token in headers
+    }
+
+    print(f"Sending request with headers: {headers}")  # Debugging
+    
+    # Make the API request with the token
+    response = requests.get(api_url, headers=headers)
 
     if response.status_code == 200:
         courses = response.json()  # API response with courses
         print("API Response:", courses)  # Debugging
+    elif response.status_code == 401:
+        print("Unauthorized access, check your token.")
+        courses = []
     else:
+        print(f"Error fetching courses: {response.status_code}, {response.text}")  # Debugging
         courses = []
 
     return render(request, 'courses/course_list.html', {'courses': courses})
+
 
 
 def course_detail_view(request, course_id):

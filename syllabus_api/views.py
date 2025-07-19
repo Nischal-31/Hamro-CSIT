@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.http import JsonResponse
 from rest_framework import generics,status,permissions
 from .models import Subject,Syllabus,Chapter,Semester,Course,Note,PastQuestion
-from rest_framework.decorators import api_view,permission_classes
+from rest_framework.decorators import api_view,permission_classes,authentication_classes
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.pagination import PageNumberPagination
@@ -11,7 +11,8 @@ from django.urls import reverse
 from user.models import CustomUser
 from user_api.serializers import UserSerializer
 from user_api.permissions import IsAdminUser, IsAdminOrReadOnly
-
+from django.views.decorators.csrf import csrf_exempt
+from rest_framework.authentication import TokenAuthentication
 #-----------------------------------------------------------------------------------------------------------------------------------------------
 class StandardResultsSetPagination(PageNumberPagination):
     page_size = 10
@@ -94,11 +95,17 @@ def courseCreate(request):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+import logging
+
+logger = logging.getLogger(__name__)
 @api_view(['GET'])
-@permission_classes([IsAuthenticated, IsAdminOrReadOnly])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
 def courseList(request):
-    courses = Course.objects.all().order_by('id')  # Ensuring ordered query
-    serializer = CourseSerializer(courses, many=True,context={'request':request})
+    logger.info(f"Received request: {request}")
+    logger.info(f"Token from session: {request.session.get('token')}")
+    courses = Course.objects.all().order_by('id')  # Ensure ordered query
+    serializer = CourseSerializer(courses, many=True, context={'request': request})
     return Response(serializer.data)
 
 @api_view(['GET'])

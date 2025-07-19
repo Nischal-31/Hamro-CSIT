@@ -6,6 +6,10 @@ from django.contrib.auth.forms import AuthenticationForm
 from .forms import UserRegisterForm
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
+from user_api.permissions import IsAdminUser, IsAdminOrReadOnly
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import api_view,permission_classes
+
 
 
 ########### register here ##################################### 
@@ -23,8 +27,10 @@ def register(request):
     
     return render(request, 'user/register.html', {'form': form, 'title': 'Register Here'})
 
+from rest_framework.authtoken.models import Token
+from django.contrib.auth import authenticate, login
+from django.http import JsonResponse
 
-################ login form ################################################### 
 def Login(request):
     if request.method == 'POST':
         username = request.POST['username']
@@ -32,14 +38,25 @@ def Login(request):
         user = authenticate(request, username=username, password=password)
 
         if user is not None:
-            login(request, user)  # Corrected usage
-            messages.success(request, f'Welcome {username}!')
-            return redirect('index')
+            login(request, user)
+
+            # Get or create token
+            token, created = Token.objects.get_or_create(user=user)
+
+            # Store the token in the session
+            request.session['auth_token'] = token.key  # Storing token in session
+
+            # Debugging - Print session and token
+            print("Session after login:", request.session)
+            print("Stored Token:", request.session.get('auth_token'))
+         
+            return JsonResponse({'token': token.key})
         else:
-            messages.error(request, 'Invalid username or password. Please try again.')
+            return JsonResponse({'error': 'Invalid username or password'}, status=400)
 
     form = AuthenticationForm()
     return render(request, 'user/login.html', {'form': form, 'title': 'Log In'})
+
 
 def logout_view(request):
     logout(request)

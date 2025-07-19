@@ -104,6 +104,31 @@
     
         {% endif %}
     </div>
+     
+
+    <script>
+        sessionStorage.setItem('auth_token', response.token);  // Store the token after login
+
+        const storedToken = sessionStorage.getItem('auth_token');  // Or use localStorage if that's what you prefer
+
+        // Check if the token is available
+        if (storedToken) {
+            fetch('/syllabus_api/course-list/', {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${storedToken}`,  // Add token to the request headers
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(data => console.log(data))  // Handle the API response
+            .catch(error => console.error('Error:', error));  // Handle errors
+        } else {
+            console.error("No token found in sessionStorage.");
+        }
+        
+     </script>
+
 
 </body>
 </html>

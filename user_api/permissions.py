@@ -29,8 +29,8 @@ class IsAdminOrReadOnly(permissions.BasePermission):
     """
     def has_permission(self, request, view):
         if request.user.is_authenticated:
-            if request.user.is_admin_user:  # No parentheses
+            if request.user.user_type == 'admin':  # Check for 'admin' user type
                 return True  # Admin can do anything
-            elif request.user.is_normal_user or request.user.is_paid_user:  # No parentheses
+            elif request.user.user_type in ['normal', 'paid']:  # Check for normal or paid users
                 return request.method in permissions.SAFE_METHODS  # Normal/Paid users can only read
         return False
