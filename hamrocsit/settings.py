@@ -61,6 +61,7 @@ INSTALLED_APPS = [
 ]
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.SessionAuthentication',
         'rest_framework.authentication.TokenAuthentication',
     ],
     'DEFAULT_PERMISSION_CLASSES': [
@@ -70,7 +71,7 @@ REST_FRAMEWORK = {
 
 CSRF_TRUSTED_ORIGINS = ['http://127.0.0.1:8000']
 
-SITE_ID = 7
+SITE_ID = 1
 
 
 AUTHENTICATION_BACKENDS = (
@@ -128,9 +129,17 @@ WSGI_APPLICATION = 'hamrocsit.wsgi.application'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 DATABASES = {
+    #'default': {
+    #    'ENGINE': 'django.db.backends.sqlite3',
+    #    'NAME': BASE_DIR / 'db.sqlite3',
+    #}
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'hamrocsit',# database name
+        'USER': 'postgres',  # your DB user
+        'PASSWORD': 'pass',  # your DB password
+        'HOST': 'localhost',  # or your DB server IP
+        'PORT': '5432',       # default PostgreSQL port
     }
 }
 

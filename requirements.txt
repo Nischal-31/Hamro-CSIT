@@ -9,3 +9,4 @@ requests
 PyJWT
 cryptography
 Pillow
+PSYcopg2-binary

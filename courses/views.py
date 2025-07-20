@@ -1,7 +1,7 @@
 # courses/views.py
 from django.shortcuts import render,HttpResponse,redirect
 import requests  # For making HTTP requests
-from django.http import Http404, JsonResponse
+from django.http import Http404, HttpResponseForbidden, JsonResponse
 
 #-------------------------------------------------------------------------------------------------------------------
 #                       COURSE VIEWS
@@ -9,7 +9,13 @@ from django.http import Http404, JsonResponse
 import requests
 from django.http import JsonResponse
 from django.shortcuts import render
+from django.contrib.auth.decorators import login_required
 
+
+def is_admin(request):
+    return request.user.is_authenticated and request.user.user_type == 'admin'
+
+@login_required
 def course_list_view(request):
     api_url = 'http://127.0.0.1:8000/syllabus_api/course-list/'
     
@@ -20,7 +26,7 @@ def course_list_view(request):
         return JsonResponse({'error': 'Authentication required, please login first.'}, status=401)
 
     headers = {
-        'Authorization': f'Bearer {token}'  # Include token in headers
+        'Authorization': f'Token {token}'  # Include token in headers
     }
 
     print(f"Sending request with headers: {headers}")  # Debugging
@@ -41,7 +47,7 @@ def course_list_view(request):
     return render(request, 'courses/course_list.html', {'courses': courses})
 
 
-
+@login_required
 def course_detail_view(request, course_id):
     # Fetch the specific course
     course_api_url = f"http://127.0.0.1:8000/syllabus_api/course-detail/{course_id}/"
@@ -58,25 +64,39 @@ def course_detail_view(request, course_id):
 
     return render(request, 'courses/course_detail.html', {'course': course, 'semesters': filtered_semesters})
 
+@login_required
 def course_create_view(request):
+    if not is_admin(request):
+        return HttpResponseForbidden("You do not have permission to create courses.")
     if request.method == "POST":
+        # Make sure to include token for authentication if your API requires it
+        token = request.session.get('auth_token')
+        if not token:
+            return HttpResponseForbidden("Authentication token missing.")
         data = {
             "name": request.POST.get("name"),
             "description": request.POST.get("description"),
         }
         api_url = "http://127.0.0.1:8000/syllabus_api/course-create/"
-        response = requests.post(api_url, json=data)
+        headers = {'Authorization': f'Token {token}'}
+        response = requests.post(api_url, json=data, headers=headers)
 
         if response.status_code == 201:
             return redirect("course-list")  # Redirect to course list page
     
     return render(request, "courses/course_create.html")
 
-
+@login_required
 def course_update_view(request, pk):
+    if not is_admin(request):
+        return HttpResponseForbidden("You do not have permission to update courses.")
+    
+    token = request.session.get('auth_token')
+    if not token:
+        return HttpResponseForbidden("Authentication token missing.")
     # Get the current course data from the API to pre-populate the form
     api_url = f"http://127.0.0.1:8000/syllabus_api/course-detail/{pk}/"
-    response = requests.get(api_url)
+    response = requests.get(api_url, headers={'Authorization': f'Token {token}'})
 
     if response.status_code == 200:
         course = response.json()
@@ -91,7 +111,7 @@ def course_update_view(request, pk):
 
         # Send POST request to update the course
         update_url = f"http://127.0.0.1:8000/syllabus_api/course-update/{pk}/"
-        update_response = requests.post(update_url, json=data)
+        update_response = requests.post(update_url, json=data,headers={'Authorization': f'Token {token}'})
 
         if update_response.status_code == 200:
             return redirect("course-list")
@@ -100,11 +120,17 @@ def course_update_view(request, pk):
 
     return render(request, "courses/course_update.html", {"course": course})
 
-
+@login_required
 def course_delete_view(request, pk):
+    if not is_admin(request):
+        return HttpResponseForbidden("You do not have permission to delete courses.")
+
+    token = request.session.get('auth_token')
+    if not token:
+        return HttpResponseForbidden("Authentication token missing.")
     # Get the course to be deleted
     api_url = f"http://127.0.0.1:8000/syllabus_api/course-detail/{pk}/"
-    response = requests.get(api_url)
+    response = requests.get(api_url,headers={'Authorization': f'Token {token}'})
 
     if response.status_code == 200:
         course = response.json()
@@ -114,7 +140,7 @@ def course_delete_view(request, pk):
     if request.method == "POST":
         # Send DELETE request to delete the course
         delete_url = f"http://127.0.0.1:8000/syllabus_api/course-delete/{pk}/"
-        delete_response = requests.delete(delete_url)
+        delete_response = requests.delete(delete_url, headers={'Authorization': f'Token {token}'})
 
         if delete_response.status_code == 204:
             return redirect("course-list")
