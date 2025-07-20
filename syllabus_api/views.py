@@ -95,15 +95,10 @@ def courseCreate(request):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-import logging
 
-logger = logging.getLogger(__name__)
 @api_view(['GET'])
-@authentication_classes([TokenAuthentication])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated,IsAdminUser])
 def courseList(request):
-    logger.info(f"Received request: {request}")
-    logger.info(f"Token from session: {request.session.get('token')}")
     courses = Course.objects.all().order_by('id')  # Ensure ordered query
     serializer = CourseSerializer(courses, many=True, context={'request': request})
     return Response(serializer.data)

@@ -10,10 +10,11 @@ class CourseSerializer(serializers.ModelSerializer):
     def get_image(self, obj):
         # Ensure that we are using the request context to build the absolute URL
         request = self.context.get('request')  # Get the current request
-        if request:
-            # Build the absolute URL using the request object
-            return request.build_absolute_uri(obj.image.url)  # Build the full URL
-        return obj.image.url  # Fallback to the relative URL if request is not found
+        if obj.image and request:
+            return request.build_absolute_uri(obj.image.url)
+        elif obj.image:
+            return obj.image.url
+        return None
 
 class SemesterSerializer(serializers.ModelSerializer):
     course = serializers.PrimaryKeyRelatedField(queryset=Course.objects.all()) 
@@ -58,12 +59,10 @@ class NotesSerializer(serializers.ModelSerializer):
         fields = ['id', 'chapter', 'title', 'description', 'file']
         
     def get_file(self, obj):
-        # Ensure that we are using the request context to build the absolute URL
-        request = self.context.get('request')  # Get the current request
-        if request:
-            # Build the absolute URL using the request object
-            return request.build_absolute_uri(obj.file.url)  # Build the full URL
-        return obj.file.url  # Fallback to the relative URL if request is not found
-    
-
+        request = self.context.get('request')
+        if obj.file and request:
+            return request.build_absolute_uri(obj.file.url)
+        elif obj.file:
+            return obj.file.url
+        return None
 
