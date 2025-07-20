@@ -97,7 +97,7 @@ def courseCreate(request):
 
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated,IsAdminUser])
+@permission_classes([IsAuthenticated, IsAdminOrReadOnly])
 def courseList(request):
     courses = Course.objects.all().order_by('id')  # Ensure ordered query
     serializer = CourseSerializer(courses, many=True, context={'request': request})
