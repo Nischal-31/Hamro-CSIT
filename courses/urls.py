@@ -9,9 +9,9 @@ urlpatterns = [
     path('course-update/<str:pk>/', views.course_update_view, name='course-update'),
     path('course-delete/<str:pk>/', views.course_delete_view, name='course-delete'),
     
-    path('semester-list/', views.semester_list_view, name='semester-list'),
+    path('semester-list/<int:course_id>', views.semester_list_view, name='semester-list'),
     path('semester-detail/<str:pk>/', views.semester_detail_view, name='semester-detail'),
-    path('semester-create/', views.semester_create_view, name='semester-create'),
+    path('semester-create/<int:course_id>', views.semester_create_view, name='semester-create'),
     path('semester-update/<str:pk>/', views.semester_update_view, name='semester-update'),
     path('semester-delete/<str:pk>/', views.semester_delete_view, name='semester-delete'),
     

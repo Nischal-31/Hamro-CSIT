@@ -19,7 +19,7 @@
 <p>Replenish man having thing gathering lights yielding shall you</p>
 {% for course in courses %}
 <div class="course-box">
-  <div class="courses" onclick="window.location.href='{% url 'semester-list' %}?course_id={{ course.id }}';">
+   <div class="courses" onclick="window.location.href='{% url 'semester-list' course.id %}';">
       <img src="{{ course.image }}" alt="{{ course.name }}">
         <div class="details">
             <span>{{course.name}}</span>

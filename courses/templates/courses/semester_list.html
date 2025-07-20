@@ -18,7 +18,7 @@
         <div class="card-body">
           <p class="card-text">{{ semester.number }}</p>
           <p class="card-text">{{ semester.description }}</p>
-          <a href="{% url 'subject-list' %}" class="btn btn-primary">View</a>
+          <a href="{% url 'subject-list' %}?semester_id={{ semester.id }}&course_id={{ course_id }}" class="btn btn-primary">View</a>
         </div>
       </div>
     </div>
@@ -26,6 +26,10 @@
 </div>
 {% else %}
 <p>There is no any semester in the courses are available.</p>
+{% if user.is_authenticated and user.user_type == 'admin' %}
+    <a href="{% url 'semester-create' course_id %}">Create New Semester</a>
+
+{% endif %}
 {% endif %}
 
 </body>
