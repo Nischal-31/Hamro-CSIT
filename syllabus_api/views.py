@@ -269,7 +269,7 @@ def subjectCreate(request, semester_id):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
-@permission_classes([ IsAuthenticated,IsAdminOrReadOnly]) 
+@permission_classes([IsAdminOrReadOnly]) 
 def subjectList(request):
     """
     Retrieve all subjects.

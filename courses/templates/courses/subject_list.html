@@ -9,25 +9,31 @@
 </head>
 <body>
 <h1>Subjects</h1>
-    
-{% for subject in subjects %}
-    <div class="row row-cols-1 row-cols-md-3 g-4">
-        <div class="col">
-          <div class="card">
-            <img src="/static/images/google.png" class="card-img-top" alt="...">
-            <div class="card-body">
-              <h5 class="card-title"><p>Subject ID: {{ subject.id }}</p></h5>
-              <p class="card-text">Subject Name: {{ subject.name }}</p>
-              {% if subject.id %}
-              <a href="{% url 'subject-detail' subject.id %}" class="btn btn-primary">Subject Details</a>
-              {% else %}
-              <p>Invalid Subject Data</p>
-            {% endif %}
-            </div>
+
+{% if subjects %}
+  <div class="row row-cols-1 row-cols-md-3 g-4">
+    {% for subject in subjects %}
+      <div class="col">
+        <div class="card">
+          <img src="/static/images/google.png" class="card-img-top" alt="...">
+          <div class="card-body">
+            <h5 class="card-title">{{ subject.name }}</h5>
+            <p class="card-text">Code: {{ subject.code }}</p>
+            <p class="card-text">Credits: {{ subject.credits }}</p>
+            <p class="card-text">Course: {{ subject.course.name }}</p>
+            <a href="{% url 'subject-detail' subject.id %}" class="btn btn-primary">Details</a>
           </div>
         </div>
-    </div>
-{% endfor %}
+      </div>
+    {% endfor %}
+  </div>
+{% else %}
+  <p>No subjects found for this semester.</p>
+{% endif %}
 
+{% if user.is_authenticated and user.user_type == 'admin' %}
+    <a href="{% url 'subject-create' semester_id %}">Create New Subject</a>
+
+{% endif %}
 </body>
 </html>

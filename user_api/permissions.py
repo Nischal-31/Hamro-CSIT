@@ -24,13 +24,19 @@ class IsPaidUser(permissions.BasePermission):
 
 class IsAdminOrReadOnly(permissions.BasePermission):
     """
-    Custom permission to allow Admin users to create, update, delete.
-    Normal and Paid users can only view.
+    Admin users have full access.
+    Normal and Paid users have read-only access.
+    Unauthenticated users have no access.
     """
     def has_permission(self, request, view):
-        if request.user.is_authenticated:
-            if request.user.user_type == 'admin':  # Check for 'admin' user type
-                return True  # Admin can do anything
-            elif request.user.user_type in ['normal', 'paid']:  # Check for normal or paid users
-                return request.method in permissions.SAFE_METHODS  # Normal/Paid users can only read
+        user = request.user
+        if not user or not user.is_authenticated:
+            return False
+        
+        if getattr(user, 'user_type', None) == 'admin':
+            return True
+        
+        if user.user_type in ['normal', 'paid']:
+            return request.method in permissions.SAFE_METHODS
+        
         return False
