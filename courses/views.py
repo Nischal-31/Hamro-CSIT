@@ -203,24 +203,28 @@ def semester_create_view(request, course_id):
     if not is_admin(request):
         return HttpResponseForbidden("You do not have permission to create semesters.")
     if request.method == "POST":
-        # Make sure to include token for authentication if your API requires it
         token = request.session.get('auth_token')
         if not token:
             return HttpResponseForbidden("Authentication token missing.")
         data = {
             "number": request.POST.get("number"),
             "description": request.POST.get("description"),
+            "course": course_id  # include course id in data if API requires it
         }
-        api_url = "http://127.0.0.1:8000/syllabus_api/semester-create/"
+        api_url = f"http://127.0.0.1:8000/syllabus_api/semester-create/{course_id}/"
         headers = {'Authorization': f'Token {token}'}
-        response = requests.post(api_url, json=data , headers=headers) # why json = data?
+        response = requests.post(api_url, json=data, headers=headers)
 
         if response.status_code == 201:
-            return redirect("semester-list",course_id=course_id)  # Redirect to the semester list page
-    
-    return render(request, "courses/semester_create.html",{
+            return redirect("semester-list", course_id=course_id)
+        else:
+            # You can handle errors here or pass message to template
+            pass
+
+    return render(request, "courses/semester_create.html", {
         "course_id": course_id,
     })
+
 
 
 @login_required
