@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404, render
 from django.http import JsonResponse
 from rest_framework import generics,status,permissions
 from .models import Subject,Syllabus,Chapter,Semester,Course,Note,PastQuestion
@@ -306,22 +306,26 @@ def subjectDetail(request,pk):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated,IsAdminUser]) 
 def subjectUpdate(request,pk):
-    subject = Subject.objects.get(id=pk)
-    serializer=SubjectSerializer(instance=subject ,data=request.data)
-    
+    subject = get_object_or_404(Subject, id=pk)
+    serializer = SubjectSerializer(instance=subject, data=request.data)
+
     if serializer.is_valid():
         serializer.save()
-        
-    return Response(serializer.data)
-
+        return Response(serializer.data)
+    else:
+        print("Serializer errors:", serializer.errors)  # Debug print
+        return Response(serializer.errors, status=400)
 
 @api_view(['DELETE'])
-@permission_classes([IsAuthenticated,IsAdminUser]) 
-def subjectDelete(request,pk):
-    subject = Subject.objects.get(id=pk)
-    subject.delete()
-    return Response('Subject successfully Deleted!')  
+@permission_classes([IsAuthenticated, IsAdminUser])
+def subjectDelete(request, pk):
+    try:
+        subject = Subject.objects.get(id=pk)
+    except Subject.DoesNotExist:
+        return Response({'detail': 'Subject not found.'}, status=status.HTTP_404_NOT_FOUND)
 
+    subject.delete()
+    return Response({'detail': 'Subject successfully deleted!'}, status=status.HTTP_204_NO_CONTENT)
 #--------------------------------------------------------------------------------------------------------------------
 
 #-------------------------OLDQUESTIONS-----------------------------------   

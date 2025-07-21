@@ -1,22 +1,50 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Update Semester{% endblock %}
+
 {% block content %}
-<h2>Update Semester</h2>
+<!-- Semester Detail Header -->
+<section id="about-home" class="py-4 bg-light">
+  <div class="container">
+    <h2>Explore Semester {{ semester.number }} Details /</h2>
+  </div>
+</section>
+<section class="py-5">
+  <div class="container">
+    <h2 class="mb-4 text-center">Update Semester</h2>
 
-<form method="POST">
-    {% csrf_token %}
-    <label for="number">Semester Number</label>
-    <input type="text" id="number" name="number" value="{{ semester.number }}" required><br><br>
+    <div class="row justify-content-center">
+      <div class="col-md-8">
+        <form method="POST" class="border p-4 rounded shadow-sm bg-light">
+          {% csrf_token %}
 
-    <label for="description">Description</label>
-    <textarea id="description" name="description" required>{{ semester.description }}</textarea><br><br>
+          <div class="mb-3">
+            <label for="number" class="form-label">Semester Number</label>
+            <input type="text" name="number" id="number" class="form-control" value="{{ semester.number }}" required>
+          </div>
 
-    <button type="submit">Update Semester</button>
-</form>
+          <div class="mb-3">
+            <label for="description" class="form-label">Description</label>
+            <textarea name="description" id="description" class="form-control" rows="4" required>{{ semester.description }}</textarea>
+          </div>
 
+          <div class="d-grid">
+            <button type="submit" class="btn btn-primary">Update Semester</button>
+          </div>
 
-{% if error %}
-<p style="color: red;">{{ error }}</p>
-{% endif %}
+          {% if error %}
+            <div class="alert alert-danger mt-3" role="alert">
+              {{ error }}
+            </div>
+          {% endif %}
+        </form>
 
-<a href="{% url 'semester-list' %}">Back to List</a>
-
+        <div class="mt-3">
+          <a href="{% url 'semester-list' course_id %}" class="btn btn-secondary">Back to List</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 {% endblock %}

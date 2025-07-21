@@ -1,7 +1,7 @@
 # courses/views.py
 from django.shortcuts import render,HttpResponse,redirect
 import requests  # For making HTTP requests
-from django.http import Http404, HttpResponseForbidden, JsonResponse
+from django.http import Http404, HttpResponseForbidden, HttpResponseNotFound, JsonResponse
 
 #-------------------------------------------------------------------------------------------------------------------
 #                       COURSE VIEWS
@@ -11,7 +11,7 @@ from django.http import JsonResponse
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 
-from syllabus_api.models import Semester
+from syllabus_api.models import Semester, Subject
 
 
 def is_admin(request):
@@ -19,8 +19,6 @@ def is_admin(request):
 
 @login_required
 def course_list_view(request):
-    api_url = 'http://127.0.0.1:8000/syllabus_api/course-list/'
-    
     # Retrieve token from session
     token = request.session.get('auth_token')  # Check the correct key here
     if not token:
@@ -34,6 +32,7 @@ def course_list_view(request):
     print(f"Sending request with headers: {headers}")  # Debugging
     
     # Make the API request with the token
+    api_url = 'http://127.0.0.1:8000/syllabus_api/course-list/'
     response = requests.get(api_url, headers=headers)
 
     if response.status_code == 200:
@@ -47,8 +46,6 @@ def course_list_view(request):
         courses = []
 
     return render(request, 'courses/course_list.html', {'courses': courses})
-
-
 
 @login_required
 def course_detail_view(request, course_id):
@@ -74,7 +71,6 @@ def course_detail_view(request, course_id):
         course['instructor']['image'] = request.build_absolute_uri(course['instructor']['image'])
 
     return render(request, 'courses/course_detail.html', {'course': course, 'semesters': filtered_semesters})
-
 
 @login_required
 def course_create_view(request):
@@ -200,15 +196,27 @@ def semester_list_view(request, course_id):
     return render(request, 'courses/semester_list.html', {'semesters': semesters, 'course_id': course_id})
 
 @login_required
-def semester_detail_view(request, pk):
-    url = f"http://127.0.0.1:8000/syllabus_api/semester-detail/{pk}/"  # Adjust API URL
-    response = requests.get(url)
+def semester_detail_view(request, semester_id):
+    token = request.user.auth_token.key  # Assuming DRF Token Auth
+
+    headers = {
+        'Authorization': f'Token {token}',
+    }
+    url = f"http://127.0.0.1:8000/syllabus_api/semester-detail/{semester_id}/"
+    response = requests.get(url, headers=headers)
+
     if response.status_code == 200:
         semester = response.json()
-        return render(request, 'courses/semester_detail.html', {'semester': semester})
-    else:
-        return render(request, 'courses/semester_detail.html', {'error': 'Semester not found'})
+        course_id = semester.get('course')  # ✅ Get course ID from API data
 
+        return render(request, 'courses/semester_detail.html', {
+            'semester': semester,
+            'course_id': course_id  # ✅ Pass to template
+        })
+    else:
+        return render(request, 'courses/semester_detail.html', {
+            'error': 'Semester not found'
+        })
 
 @login_required
 def semester_create_view(request, course_id):
@@ -237,77 +245,90 @@ def semester_create_view(request, course_id):
         "course_id": course_id,
     })
 
-
-
 @login_required
-def semester_update_view(request, pk):
+def semester_update_view(request, semester_id):
     if not is_admin(request):
         return HttpResponseForbidden("You do not have permission to update semester.")
     
     token = request.session.get('auth_token')
     if not token:
         return HttpResponseForbidden("Authentication token missing.")
-    # Get the current semester data from the API to pre-populate the form
-    api_url = f"http://127.0.0.1:8000/syllabus_api/semester-detail/{pk}/"
-    response = requests.get(api_url,headers={'Authorization': f'Token {token}'})
+
+    headers = {'Authorization': f'Token {token}'}
+    api_url = f"http://127.0.0.1:8000/syllabus_api/semester-detail/{semester_id}/"
+    response = requests.get(api_url, headers=headers)
 
     if response.status_code == 200:
-        semester = response.json()  # Get the current semester data
+        semester = response.json()
+        course_id = semester.get('course')  # ✅ Extract course_id from API
     else:
-        return redirect("semester-list")
+        return redirect("course-list")  # fallback redirect if fetch fails
 
     if request.method == "POST":
-        # Get updated fields from the form data
         data = {
             "number": request.POST.get("number"),
             "description": request.POST.get("description"),
         }
 
-        print("Data being sent to the API:", data)  # Debugging print
-
-        # Send POST request to update the semester
-        update_url = f"http://127.0.0.1:8000/syllabus_api/semester-update/{pk}/"
-        update_response = requests.post(update_url, json=data, headers={'Authorization': f'Token {token}'})
-
-        print("API Response:", update_response.status_code, update_response.json())  # Debugging print
+        update_url = f"http://127.0.0.1:8000/syllabus_api/semester-update/{semester_id}/"
+        update_response = requests.post(update_url, json=data, headers=headers)
 
         if update_response.status_code == 200:
-            return redirect("semester-list")
+            return redirect("semester-list", course_id=course_id)  # ✅ Pass course_id to reverse
         else:
-            return render(request, "courses/semester_update.html", {"semester": semester, "error": "Failed to update semester."})
+            return render(request, "courses/semester_update.html", {
+                "semester": semester,
+                "course_id": course_id,
+                "error": "Failed to update semester."
+            })
 
-    return render(request, "courses/semester_update.html", {"semester": semester})
-
+    return render(request, "courses/semester_update.html", {
+        "semester": semester,
+        "course_id": course_id
+    })
+ 
 @login_required
-def semester_delete_view(request, pk):
+def semester_delete_view(request, semester_id):
     if not is_admin(request):
         return HttpResponseForbidden("You do not have permission to delete semester.")
-
+    
     token = request.session.get('auth_token')
     if not token:
         return HttpResponseForbidden("Authentication token missing.")
-    # Get the semester to be deleted
-    api_url = f"http://127.0.0.1:8000/syllabus_api/semester-detail/{pk}/"
-    response = requests.get(api_url, headers={'Authorization': f'Token {token}'})
+    
+    headers = {'Authorization': f'Token {token}'}
 
-    if response.status_code == 200:
-        semester = response.json()  # Get the current semester data
-    else:
-        return redirect("semester-list")
+    # Fetch semester data
+    url = f"http://127.0.0.1:8000/syllabus_api/semester-detail/{semester_id}/"
+    response = requests.get(url, headers=headers)
 
-    if request.method == "POST":
-        # Send DELETE request to delete the semester
-        delete_url = f"http://127.0.0.1:8000/syllabus_api/semester-delete/{pk}/"
-        delete_response = requests.delete(delete_url)
+    if response.status_code != 200:
+        return render(request, 'courses/semester_delete.html', {
+            'error': 'Semester not found.',
+            'semester': None
+        })
 
-        if delete_response.status_code == 204:
-            return redirect("semester-list")  # Redirect to the semester list after successful deletion
-        else:
-            return render(request, "courses/semester_delete.html", {"semester": semester, "error": "Failed to delete semester."})
+    semester = response.json()
+    course_id = semester.get('course')
 
-    return render(request, "courses/semester_delete.html", {"semester": semester})
+    if request.method == 'POST':
+        # DELETE request with headers
+        delete_url = f"http://127.0.0.1:8000/syllabus_api/semester-delete/{semester_id}/"
+        delete_response = requests.delete(delete_url, headers=headers)
 
+        if delete_response.status_code in [200, 204]:
+            return redirect('semester-list', course_id=course_id)
 
+        return render(request, 'courses/semester_delete.html', {
+            'error': 'Failed to delete semester.',
+            'semester': semester,
+            'course_id': course_id
+        })
+
+    return render(request, 'courses/semester_delete.html', {
+        'semester': semester,
+        'course_id': course_id
+    })
 #-------------------------------------------------------------------------------------------------------------------
 #                       SUBJECT VIEWS
 #-------------------------------------------------------------------------------------------------------------------
@@ -347,14 +368,25 @@ def subject_list_view(request,semester_id):
 
 
 @login_required
-def subject_detail_view(request, pk):
+def subject_detail_view(request, subject_id):
+    # Retrieve token from session
+    token = request.session.get('auth_token')  # Check the correct key here
+    if not token:
+        print("No token found in session.")
+        return JsonResponse({'error': 'Authentication required, please login first.'}, status=401)
+
+    headers = {
+        'Authorization': f'Token {token}'  # Include token in headers
+    }
+    print(f"Sending request with headers: {headers}")  # Debugging
+
     # Adjust the API URL for the subject
-    subject_url = f"http://127.0.0.1:8000/syllabus_api/subject-detail/{pk}/"  # Adjust as per your API endpoint
-    notes_url = f"http://127.0.0.1:8000/syllabus_api/note-list/?subject={pk}"  # API for notes
-    past_questions_url = f"http://127.0.0.1:8000/syllabus_api/pastQuestion-list/?subject={pk}"  # API for past questions
+    subject_url = f"http://127.0.0.1:8000/syllabus_api/subject-detail/{subject_id}/"  # Adjust as per your API endpoint
+    notes_url = f"http://127.0.0.1:8000/syllabus_api/note-list/?subject={subject_id}"  # API for notes
+    past_questions_url = f"http://127.0.0.1:8000/syllabus_api/pastQuestion-list/?subject={subject_id}"  # API for past questions
 
     # Fetch subject details
-    subject_response = requests.get(subject_url)
+    subject_response = requests.get(subject_url, headers=headers)
     if subject_response.status_code == 200:
         subject = subject_response.json()  # Fetch subject data
     else:
@@ -396,7 +428,6 @@ def subject_create_view(request, semester_id):
         data = {
             "name": request.POST.get("name"),
             "code": request.POST.get("code"),
-            "semester": request.POST.get("semester"),  # Dropdown value
         }
 
         api_url = f"http://127.0.0.1:8000/syllabus_api/subject-create/{semester_id}/"  # Adjust if needed
@@ -414,7 +445,7 @@ def subject_create_view(request, semester_id):
 
 @login_required
 # ✅ Subject Update View
-def subject_update_view(request, pk):
+def subject_update_view(request, subject_id):
     if not is_admin(request):
         return HttpResponseForbidden("You do not have permission to update semester.")
     
@@ -422,44 +453,124 @@ def subject_update_view(request, pk):
     if not token:
         return HttpResponseForbidden("Authentication token missing.")
     
-    api_url = f"http://127.0.0.1:8000/syllabus_api/subject-detail/{pk}/"
+    api_url = f"http://127.0.0.1:8000/syllabus_api/subject-detail/{subject_id}/"
     response = requests.get(api_url,headers={'Authorization': f'Token {token}'})
     subject = response.json() if response.status_code == 200 else {}
 
+    semester_id = subject.get('semester')  
+
     if request.method == "POST":
+        credits_value = request.POST.get("credits")
         data = {
             "name": request.POST.get("name"),
             "code": request.POST.get("code"),
-            "semester": request.POST.get("semester"),
+            "credits": int(credits_value) if credits_value else 0,  # Convert or set default
+            "description": request.POST.get("description"),
+            "semester": semester_id
         }
-        update_url = f"http://127.0.0.1:8000/syllabus_api/subject-update/{pk}/"
-        response = requests.put(update_url, json=data,headers={'Authorization': f'Token {token}'})
+        update_url = f"http://127.0.0.1:8000/syllabus_api/subject-update/{subject_id}/"
+        response = requests.post(update_url, json=data,headers={'Authorization': f'Token {token}'})
 
         if response.status_code == 200:
-            return redirect("subject-list")
+            return redirect("subject-list", semester_id=semester_id)
 
-    return render(request, "courses/subject_update.html", {"subject": subject})
+    return render(request, "courses/subject_update.html", {"subject": subject, "semester_id": semester_id})
 
 
-
-# ✅ Subject Delete View
 @login_required
-def subject_delete_view(request, pk):
+def subject_delete_view(request, subject_id):
     if not is_admin(request):
-        return HttpResponseForbidden("You do not have permission to delete semester.")
+        return HttpResponseForbidden("You do not have permission to delete subject.")
 
     token = request.session.get('auth_token')
     if not token:
         return HttpResponseForbidden("Authentication token missing.")
-    api_url = f"http://127.0.0.1:8000/syllabus_api/subject-detail/{pk}/"
-    response = requests.get(api_url,headers={'Authorization': f'Token {token}'})
+
+    api_url = f"http://127.0.0.1:8000/syllabus_api/subject-detail/{subject_id}/"
+    response = requests.get(api_url, headers={'Authorization': f'Token {token}'})
     subject = response.json() if response.status_code == 200 else {}
+    
+    if not subject:
+        return HttpResponseNotFound("Subject not found")
+
+    semester_id = subject.get('semester')  # ✅ Get semester_id before deletion
 
     if request.method == "POST":
-        delete_url = f"http://127.0.0.1:8000/syllabus_api/subject-delete/{pk}/"
-        response = requests.delete(delete_url)
+        delete_url = f"http://127.0.0.1:8000/syllabus_api/subject-delete/{subject_id}/"
+        response = requests.delete(delete_url, headers={'Authorization': f'Token {token}'})
 
         if response.status_code == 204:
-            return redirect("subject-list")
+            return redirect("subject-list", semester_id=semester_id)
 
-    return render(request, "courses/subject_delete.html", {"subject": subject})
+    return render(request, "courses/subject_delete.html", {
+        "subject": subject,
+        "semester_id": semester_id  # ✅ Include in context for cancel button
+    })
+
+#-------------------------------------------------------------------------------------------------------------------
+#                       OLD QUESTIONS VIEWS 
+#-------------------------------------------------------------------------------------------------------------------
+
+@login_required
+def note_list_view(request, subject_id):
+    token = request.session.get('auth_token')
+    if not token:
+        return HttpResponseForbidden("Authentication token missing.")
+
+    headers = {'Authorization': f'Token {token}'}
+    print(f"Sending request with headers: {headers}")  # Debugging
+    api_url = f'http://127.0.0.1:8000/syllabus_api/note-list/{subject_id}/'  # Adjust the URL as per your API endpoint
+     # Make the API request with the token
+    response = requests.get(api_url,headers=headers)
+
+    if response.status_code == 200:
+        notes = response.json()
+        print("API Response:", notes)  # Debugging
+    elif response.status_code == 401:
+        print("Unauthorized access, check your token.")
+        notes = []
+    else:
+        print(f"Error fetching notes: {response.status_code}, {response.text}")  # Debugging
+        subjects = []
+     # ✅ Proper way to get subject_id
+    try:
+        subject = Subject.objects.get(id=subject_id)
+        semester_id = subject.semester_id
+    except Subject.DoesNotExist:
+        semester_id = None  # fallback
+    return render(request, 'courses/note_list.html', {'notes': notes, 'semester_id': semester_id, 'subject_id': subject_id})
+
+#-------------------------------------------------------------------------------------------------------------------
+#                       PAST QUESTIONS VIEWS    
+#-------------------------------------------------------------------------------------------------------------------
+
+
+@login_required
+def pastQuestion_list_view(request, subject_id):
+    token = request.session.get('auth_token')
+    if not token:
+        return HttpResponseForbidden("Authentication token missing.")
+
+    headers = {'Authorization': f'Token {token}'}
+    print(f"Sending request with headers: {headers}")  # Debugging
+    api_url = f'http://127.0.0.1:8000/syllabus_api/pastQuestion-list/{subject_id}/'  # Adjust the URL as per your API endpoint
+     # Make the API request with the token
+    response = requests.get(api_url,headers=headers)
+
+    if response.status_code == 200:
+        pastQuestions = response.json()
+        print("API Response:", pastQuestions)  # Debugging
+    elif response.status_code == 401:
+        print("Unauthorized access, check your token.")
+        pastQuestions = []
+    else:
+        print(f"Error fetching pastQuestions: {response.status_code}, {response.text}")  # Debugging
+        pastQuestions = []
+     # ✅ Proper way to get subject_id
+    try:
+        subject = Subject.objects.get(id=subject_id)
+        semester_id = subject.semester_id
+    except Subject.DoesNotExist:
+        semester_id = None  # fallback
+    return render(request, 'courses/pastQuestion_list.html', {'pastQuestions': pastQuestions, 'semester_id': semester_id, 'subject_id': subject_id})
+

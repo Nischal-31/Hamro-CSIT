@@ -12,10 +12,13 @@
 
     <label for="semester">Semester:</label>
     <input type="number" name="semester" value="{{ subject.semester }}" required>
+    
+    <label for="credits">Credits</label>
+    <input type="number" id="credits" name="credits" value="{{ subject.credits }}" required>
 
     <button type="submit">Update Subject</button>
 </form>
 
-<a href="{% url 'subject-list' %}">Back to Subject List</a>
+<a href="{% url 'subject-list' semester_id %}">Back to Subject List</a>
 {% endblock %}
 

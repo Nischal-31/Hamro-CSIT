@@ -1,25 +1,50 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Create Subject{% endblock %}
+
 {% block content %}
-<h2>Create New Subject</h2>
+<!-- Header section -->
+<section id="about-home" class="py-4 bg-light">
+  <div class="container">
+    <h2 class="mb-0">Subjects / Create</h2>
+  </div>
+</section>
 
-<form method="POST" action="{% url 'subject-create' semester_id %}">
-    {% csrf_token %}
-    
-    <label for="name">Subject Name:</label>
-    <input type="text" name="name" required>
-    
-    <label for="code">Subject Code:</label>
-    <input type="text" name="code" required>
+<!-- Form section -->
+<section id="create-subject" class="py-5">
+  <div class="container">
+    <h1 class="mb-4 text-center">Create a New Subject</h1>
 
-    <label for="semester">Semester:</label>
-    <select name="semester" required>
-        {% for semester in semesters %}
-            <option value="{{ semester.id }}">Semester {{ semester.number }}</option>
-        {% endfor %}
-    </select>
+    <div class="row justify-content-center">
+      <div class="col-12 col-md-8 col-lg-6">
+        <div class="card shadow rounded-4">
+          <div class="card-body p-4">
+            <form method="POST" action="{% url 'subject-create' semester_id %}">
+              {% csrf_token %}
 
-    <button type="submit">Create Subject</button>
-</form>
+              <div class="mb-3">
+                <label for="name" class="form-label">Subject Name</label>
+                <input type="text" class="form-control" id="name" name="name" required placeholder="Enter subject name">
+              </div>
 
-<a href="{% url 'subject-list' semester_id %}">Back to Subject List</a>
+              <div class="mb-3">
+                <label for="code" class="form-label">Subject Code</label>
+                <input type="text" class="form-control" id="code" name="code" required placeholder="Enter subject code">
+              </div>
 
+
+              <div class="d-grid">
+                <button type="submit" class="btn btn-success btn-lg">Create Subject</button>
+              </div>
+            </form>
+            <div class="mt-3 text-center">
+              <a href="{% url 'subject-list' semester_id %}" class="btn btn-outline-secondary">Back to Subject List</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 {% endblock %}
