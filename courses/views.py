@@ -49,22 +49,32 @@ def course_list_view(request):
     return render(request, 'courses/course_list.html', {'courses': courses})
 
 
+
 @login_required
 def course_detail_view(request, course_id):
-    # Fetch the specific course
+    token = request.user.auth_token.key  # if using DRF token auth
+
+    headers = {
+        'Authorization': f'Token {token}',
+    }
+
     course_api_url = f"http://127.0.0.1:8000/syllabus_api/course-detail/{course_id}/"
-    course_response = requests.get(course_api_url)
+    course_response = requests.get(course_api_url, headers=headers)
     course = course_response.json() if course_response.status_code == 200 else None
 
-    # Fetch the semesters that belong to this course
-    semester_api_url = f"http://127.0.0.1:8000/syllabus_api/semester-list/"
-    semester_response = requests.get(semester_api_url)
+    semester_api_url = "http://127.0.0.1:8000/syllabus_api/semester-list/"
+    semester_response = requests.get(semester_api_url, headers=headers)
     semesters = semester_response.json() if semester_response.status_code == 200 else []
+    filtered_semesters = [s for s in semesters if s['course'] == course_id]
 
-    # Filter semesters for this course
-    filtered_semesters = [semester for semester in semesters if semester['course'] == course_id]
+    # Fix image URLs as before
+    if course and course.get('image'):
+        course['image'] = request.build_absolute_uri(course['image'])
+    if course and course.get('instructor') and course['instructor'].get('image'):
+        course['instructor']['image'] = request.build_absolute_uri(course['instructor']['image'])
 
     return render(request, 'courses/course_detail.html', {'course': course, 'semesters': filtered_semesters})
+
 
 @login_required
 def course_create_view(request):
