@@ -1,39 +1,72 @@
 {% extends "base.html" %}
 {% load static %}
 
+
+
 {% block title %}Blog{% endblock %}
 
 {% block content %}
+<link rel="stylesheet" href="/static/css/create_post.css">
 
-        <section id="about-home">
-                    <h2>Blog /</h2>
-        </section>
-        
+
+<section id="about-home">
+    <h2>Blog /</h2>
+</section>
+
+
+
+<h2 class="form-title">Create New Blog Post</h2>
+<form method="POST" enctype="multipart/form-data" class="blog-form">
+
+    {% csrf_token %}
+
+    <label for="title">Title:</label><br>
+    <input type="text" name="title" required><br><br>
+
+    <label for="content">Content:</label><br>
+    <textarea name="content" rows="6" required></textarea><br><br>
+
+    <label for="extra_details">Extra Details (optional):</label><br>
+    <textarea name="extra_details" rows="4"></textarea><br><br>
+
+    <label for="image">Image:</label><br>
+    <input type="file" name="image" accept="image/*"><br><br>
+
+    <!-- <label for="user_type">User Type:</label><br>
+    <select name="user_type" required>
+        <option value="admin">Admin</option>
+        <option value="paid">Paid User</option>
+        <option value="normal">Normal User</option>
+    </select><br><br> -->
+
+    <button type="submit">Publish Post</button>
+</form>
+
+{% for post in posts %}
+<section id="blog-container">
+    <div class="blogs">
+        <div class="post">
+            {% if post.image %}
+            <img src="{{ post.image.url }}" alt="{{ post.title }}">
+            {% endif %}
+            <h3>{{ post.title }}</h3>
+            <p>{{ post.content|truncatewords:20 }}</p> <!-- Truncate to show a short preview -->
+            <a href="{% url 'blog_detail' slug=post.slug %}">Read More</a>
+        </div>
+    </div>
+
+
+    <div class="cate">
+        <h2>Categories</h2>
         {% for post in posts %}
-        <section id="blog-container">  
-            <div class="blogs">
-                <div class="post">
-                 {% if post.image %}
-                     <img src="{{ post.image.url }}" alt="{{ post.title }}">
-                 {% endif %}
-                <h3>{{ post.title }}</h3>
-                <p>{{ post.content|truncatewords:20 }}</p>  <!-- Truncate to show a short preview -->
-                <a href="{% url 'blog_detail' slug=post.slug %}">Read More</a>
-                </div>
-             </div>
-           
-             
-            <div class="cate">
-                <h2>Categories</h2>
-                {% for post in posts %}
-                <hr>
-                <a href="{% url 'blog_detail' slug=post.slug %}">{{ post.title }}</a>
-                <hr>
-                  {% endfor %}
-            </div>
-            
-        </section>
+        <hr>
+        <a href="{% url 'blog_detail' slug=post.slug %}">{{ post.title }}</a>
+        <hr>
         {% endfor %}
-        
+    </div>
+
+</section>
+{% endfor %}
+
 
 {% endblock %}
