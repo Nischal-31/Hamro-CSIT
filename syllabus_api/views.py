@@ -125,11 +125,14 @@ def courseUpdate(request, pk):
     # Updating fields
     name = request.data.get("name")
     description = request.data.get("description")
+    image = request.FILES.get("image")
 
     if name:
         course.name = name
     if description:
         course.description = description
+    if image:
+        course.image = image
 
     try:
         course.save()
@@ -386,14 +389,19 @@ def pastQuestionDetail(request,pk):
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated,IsAdminUser]) 
-def pastQuestionUpdate(request,pk):
-    pastquestion = PastQuestion.objects.get(id=pk)
-    serializer=PastQuestionsSerializer(instance=pastquestion ,data=request.data)
-    
+def pastQuestionUpdate(request, pk):
+    try:
+        pastquestion = PastQuestion.objects.get(id=pk)
+    except PastQuestion.DoesNotExist:
+        return Response({"detail": "Past question not found"}, status=404)
+
+    serializer = PastQuestionsSerializer(instance=pastquestion, data=request.data, partial=True)  # allow partial updates
+
     if serializer.is_valid():
         serializer.save()
-        
-    return Response(serializer.data)
+        return Response(serializer.data, status=200)
+    
+    return Response(serializer.errors, status=400)
 
 
 @api_view(['DELETE'])
@@ -420,11 +428,6 @@ def syllabusCreate(request, subject_id):
     # Add the subject_id to the request data so that it can be used in the serializer
     data = request.data.copy()  # Copy request data to modify safely
     data['subject'] = subject.id  # Assign correct subject_id
-    
-        # Check if a syllabus for this subject already exists
-    syllabus, created = Syllabus.objects.get_or_create(subject_id=subject_id)
-
-    serializer = SyllabusSerializer(syllabus, data=request.data, partial=True)  # Allow partial updates
 
     # Create the past question using the serializer
     serializer = SyllabusSerializer(data=data)

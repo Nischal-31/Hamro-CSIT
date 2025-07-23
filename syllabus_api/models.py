@@ -30,7 +30,7 @@ class Semester(models.Model):
 #}
 
 class Subject(models.Model):
-    semester = models.ForeignKey(Semester, on_delete=models.CASCADE)  # Foreign key reference to Semester
+    semester = models.ForeignKey(Semester, on_delete=models.CASCADE,related_name="subjects")  # Foreign key reference to Semester
     name = models.CharField(max_length=255)
     code = models.CharField(max_length=20)
     credits = models.IntegerField(default=3)
@@ -66,9 +66,7 @@ class PastQuestion(models.Model):
 class Syllabus(models.Model):
     subject = models.OneToOneField(Subject, on_delete=models.CASCADE, related_name="syllabus")
     objectives = models.TextField(blank=True, null=True)
-    content = models.JSONField()  # Markdown or JSON format can be used
-    references = models.JSONField(blank=True, null=True)  # List of reference books/resources
-    
+    file = models.FileField(upload_to='syllabus_files/', null=True, blank=True)  # File upload for the syllabus
     def __str__(self):
         return f"Syllabus of {self.subject.name}"
 
@@ -97,14 +95,6 @@ class Note(models.Model):
     def __str__(self):
         return self.title
     
-#{
-#    "id": 1,
-#    "subject": 1,
-#    "title": "OOP Basics",
-#    "file": "/media/notes/oop-intro.pdf",
-#    "description": "Introduction to Object-Oriented Programming."
-#}
-
 
     
 
