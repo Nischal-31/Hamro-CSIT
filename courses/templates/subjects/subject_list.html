@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}{{ subject.name }}{% endblock %}
+{% block title %}Subjects for {{ subject.name }}{% endblock %}
 
 {% block content %}
 <section id="about-home" class="py-4 bg-light">
@@ -9,46 +9,47 @@
     <h2 class="mb-0">Subject List /</h2>
   </div>
 </section>
-  <div class="container py-4">
-    <h1 class="mb-4">Subjects</h1>
 
-    {% if subjects %}
-      <ul class="list-group">
-        {% for subject in subjects %}
-          <li class="list-group-item d-flex justify-content-between align-items-center flex-wrap">
-            <div>
-              <h5 class="mb-1">{{ subject.name }}</h5>
-              <small class="text-muted">
-                Code: {{ subject.code }} | Credits: {{ subject.credits }} | Course: {{ subject.course.name }}
-              </small>
-            </div>
+<div class="container py-4">
+  <h1 class="mb-4">Subjects</h1>
+
+  {% if subjects %}
+    <ul class="list-group">
+      {% for subject in subjects %}
+        <li class="list-group-item d-flex justify-content-between align-items-center flex-wrap">
+          <div>
+            <h5 class="mb-1">{{ subject.name }}</h5>
+            <small class="text-muted">
+              Code: {{ subject.code }} | Credits: {{ subject.credits }} | Course: {{ subject.course.name }}
+            </small>
+          </div>
+
+          <div class="d-flex gap-2">
             <a href="{% url 'subject-detail' subject.id %}" class="btn btn-sm btn-primary">Details</a>
             {% if user.is_authenticated and user.user_type == 'admin' %}
-            <a href="{% url 'subject-update' subject.id %}" class="btn btn-sm btn-primary">Edit</a>
-  <form action="{% url 'subject-delete' subject.id %}" method="post" onsubmit="return confirm('Are you sure you want to delete this course?');" class="m-0">
-    {% csrf_token %}
-    <button type="submit" class="btn btn-sm btn-danger">Delete</button>
-    
-  </form>
+              <a href="{% url 'subject-update' subject.id %}" class="btn btn-sm btn-warning">Edit</a>
+              <form action="{% url 'subject-delete' subject.id %}" method="post" onsubmit="return confirm('Are you sure you want to delete this subject?');" class="m-0">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+              </form>
             {% endif %}
-          </li>
-        {% endfor %}
-        <div class="mt-4 d-flex gap-3">
-      <a href="{% url 'semester-list' course_id %}" class="btn btn-sm btn-secondary">Back to List</a>
-    </div>
-      </ul>
-      {% if user.is_authenticated and user.user_type == 'admin' %}
-        <div class="mt-4">
-          <a href="{% url 'subject-create' semester_id %}" class="btn btn-success">Create New Subject</a>
-        </div>
-      {% endif %}
-    {% else %}
-      <p>No subjects found for this semester.</p>
-      {% if user.is_authenticated and user.user_type == 'admin' %}
-        <a href="{% url 'subject-create' semester_id %}" class="btn btn-success">Create New Subject</a>
-      {% endif %}
-    {% endif %}
-  </div>
-  
+          </div>
+        </li>
+      {% endfor %}
+    </ul>
 
- {% endblock %}
+    <div class="mt-4 d-flex justify-content-between align-items-center">
+      <a href="{% url 'semester-list' course_id %}" class="btn btn-secondary btn-sm">← Back to Semester List</a>
+      {% if user.is_authenticated and user.user_type == 'admin' %}
+        <a href="{% url 'subject-create' semester_id %}" class="btn btn-success btn-sm">+ Create New Subject</a>
+      {% endif %}
+    </div>
+
+  {% else %}
+    <p>No subjects found for this semester.</p>
+    {% if user.is_authenticated and user.user_type == 'admin' %}
+      <a href="{% url 'subject-create' semester_id %}" class="btn btn-success mt-3">+ Create New Subject</a>
+    {% endif %}
+  {% endif %}
+</div>
+{% endblock %}
