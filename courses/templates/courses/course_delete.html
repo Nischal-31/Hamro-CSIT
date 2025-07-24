@@ -28,9 +28,6 @@
               <strong>Description:</strong> {{ course.description }}
             </div>
 
-            {% if error %}
-              <div class="alert alert-danger">{{ error }}</div>
-            {% endif %}
 
             <form method="POST" class="d-flex justify-content-between">
               {% csrf_token %}

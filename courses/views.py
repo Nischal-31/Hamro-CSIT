@@ -99,15 +99,16 @@ def course_create_view(request):
     return render(request, "courses/course_create.html")
 
 @login_required
-def course_update_view(request, pk):
+def course_update_view(request, course_id):
     if not is_admin(request):
         return HttpResponseForbidden("You do not have permission to update courses.")
     
     token = request.session.get('auth_token')
     if not token:
         return HttpResponseForbidden("Authentication token missing.")
-    # Get the current course data from the API to pre-populate the form
-    api_url = f"http://127.0.0.1:8000/syllabus_api/course-detail/{pk}/"
+
+    # Get current course data
+    api_url = f"http://127.0.0.1:8000/syllabus_api/course-detail/{course_id}/"
     response = requests.get(api_url, headers={'Authorization': f'Token {token}'})
 
     if response.status_code == 200:
@@ -116,24 +117,33 @@ def course_update_view(request, pk):
         return redirect("course-list")
 
     if request.method == "POST":
+        # Separate text fields and file
         data = {
             "name": request.POST.get("name"),
             "description": request.POST.get("description"),
         }
 
-        # Send POST request to update the course
-        update_url = f"http://127.0.0.1:8000/syllabus_api/course-update/{pk}/"
-        update_response = requests.post(update_url, json=data,headers={'Authorization': f'Token {token}'})
+        files = {}
+        image_file = request.FILES.get("image")
+        if image_file:
+            files["image"] = (image_file.name, image_file, image_file.content_type)
+
+        # Send multipart/form-data request
+        update_url = f"http://127.0.0.1:8000/syllabus_api/course-update/{course_id}/"
+        update_response = requests.post(update_url, data=data, files=files, headers={'Authorization': f'Token {token}'})
 
         if update_response.status_code == 200:
             return redirect("course-list")
         else:
-            return render(request, "courses/course_update.html", {"course": course, "error": "Failed to update course."})
+            return render(request, "courses/course_update.html", {
+                "course": course,
+                "error": f"Failed to update course. {update_response.text}"
+            })
 
     return render(request, "courses/course_update.html", {"course": course})
 
 @login_required
-def course_delete_view(request, pk):
+def course_delete_view(request, course_id):
     if not is_admin(request):
         return HttpResponseForbidden("You do not have permission to delete courses.")
 
@@ -141,7 +151,7 @@ def course_delete_view(request, pk):
     if not token:
         return HttpResponseForbidden("Authentication token missing.")
     # Get the course to be deleted
-    api_url = f"http://127.0.0.1:8000/syllabus_api/course-detail/{pk}/"
+    api_url = f"http://127.0.0.1:8000/syllabus_api/course-detail/{course_id}/"
     response = requests.get(api_url,headers={'Authorization': f'Token {token}'})
 
     if response.status_code == 200:
@@ -151,7 +161,7 @@ def course_delete_view(request, pk):
 
     if request.method == "POST":
         # Send DELETE request to delete the course
-        delete_url = f"http://127.0.0.1:8000/syllabus_api/course-delete/{pk}/"
+        delete_url = f"http://127.0.0.1:8000/syllabus_api/course-delete/{course_id}/"
         delete_response = requests.delete(delete_url, headers={'Authorization': f'Token {token}'})
 
         if delete_response.status_code == 204:
@@ -180,7 +190,7 @@ def semester_list_view(request, course_id):
 
     print(f"Sending request with headers: {headers}")  # Debugging
     # Fetch semesters only for the selected course
-    semester_api_url = f"http://127.0.0.1:8000/syllabus_api/semester-list/?course_id={course_id}"
+    semester_api_url = f"http://127.0.0.1:8000/syllabus_api/semester-list/{course_id}"
     response = requests.get(semester_api_url, headers=headers)
     # Check the response status
     if response.status_code == 200:

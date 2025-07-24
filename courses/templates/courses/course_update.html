@@ -10,7 +10,8 @@
 
     <div class="row justify-content-center">
       <div class="col-md-8">
-        <form method="POST" class="border p-4 rounded shadow-sm bg-light">
+        <!-- 👇 Added enctype for file upload -->
+        <form method="POST" enctype="multipart/form-data" class="border p-4 rounded shadow-sm bg-light">
           {% csrf_token %}
 
           <div class="mb-3">
@@ -21,6 +22,11 @@
           <div class="mb-3">
             <label for="description" class="form-label">Description</label>
             <textarea name="description" id="description" class="form-control" rows="4">{{ course.description }}</textarea>
+          </div>
+
+          <div class="mb-3">
+            <label for="image" class="form-label">Image</label>
+            <input type="file" name="image" class="form-control">
           </div>
 
           <div class="d-grid">
