@@ -555,18 +555,21 @@ def pastQuestion_detail_view(request, pastQuestion_id):
         return HttpResponseForbidden("Authentication token missing.")
 
     headers = {'Authorization': f'Token {token}'}
-    print(f"Sending request with headers: {headers}")
-    past_questions_url = f"http://127.0.0.1:8000/syllabus_api/pastQuestion-list/{pastQuestion_id}"
+    api_url = f"http://127.0.0.1:8000/syllabus_api/pastQuestion-detail/{pastQuestion_id}/"
 
-    response = requests.get(past_questions_url, headers=headers)
+    response = requests.get(api_url, headers=headers)
     if response.status_code == 200:
         pastQuestion = response.json()
+        file_url = pastQuestion.get('file', '')
+        is_pdf = file_url.lower().endswith('.pdf') if file_url else False
     else:
         return HttpResponseNotFound("Past Question not found")
-    
+
     return render(request, 'pastQuestions/pastQuestion_detail.html', {
         'pastQuestion': pastQuestion,
+        'is_pdf': is_pdf,
     })
+
 
 @login_required
 def pastQuestion_create_view(request, subject_id):

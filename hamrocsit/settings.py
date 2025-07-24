@@ -97,7 +97,8 @@ MIDDLEWARE = [
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
+    # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
     
     'allauth.account.middleware.AccountMiddleware',
 ]
@@ -215,3 +216,7 @@ SOCIALACCOUNT_LOGIN_ON_GET = True
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # or other backend like cache or file
 SESSION_COOKIE_AGE = 60 * 60 * 24  # 1 day
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+
+# Disable frame blocking (for development only)
+X_FRAME_OPTIONS = 'SAMEORIGIN'  # or 'ALLOWALL' (not recommended for production)
+

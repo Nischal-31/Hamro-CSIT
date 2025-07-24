@@ -30,9 +30,9 @@ urlpatterns = [
 
 # Past Question URLs
 
-    path('pastQuestion-list/<int:subject_id>', views.pastQuestion_list_view, name='pastQuestion-list'),
+    path('pastQuestion-list/<int:subject_id>/', views.pastQuestion_list_view, name='pastQuestion-list'),
     path('pastQuestion-detail/<str:pastQuestion_id>/', views.pastQuestion_detail_view, name='pastQuestion-detail'),
-    path('pastQuestion-create/<int:subject_id>', views.pastQuestion_create_view, name='pastQuestion-create'),
+    path('pastQuestion-create/<int:subject_id>/', views.pastQuestion_create_view, name='pastQuestion-create'),
     path('pastQuestion-update/<str:pastQuestion_id>/', views.pastQuestion_update_view, name='pastQuestion-update'),
     path('pastQuestion-delete/<str:pastQuestion_id>/', views.pastQuestion_delete_view, name='pastQuestion-delete'),
 
