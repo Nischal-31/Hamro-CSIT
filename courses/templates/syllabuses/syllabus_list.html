@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Syllabus - {{ subject.name }}{% endblock %}
+
+{% block content %}
+<section class="py-4 bg-light">
+  <div class="container">
+    <h2 class="mb-0">Syllabus / {{ subject.name }}</h2>
+  </div>
+</section>
+
+<div class="container py-4">
+  <h1 class="mb-4">Syllabus</h1>
+
+  {% if syllabus %}
+    <div class="card mb-4">
+      <div class="card-body">
+        {% if syllabus.objectives %}
+          <h5>Objectives:</h5>
+          <p>{{ syllabus.objectives|linebreaks }}</p>
+        {% endif %}
+
+        {% if syllabus.file %}
+          <h5>Syllabus File:</h5>
+          <a href="{{ syllabus.file.url }}" target="_blank" class="btn btn-outline-secondary btn-sm">View/Download</a>
+        {% else %}
+          <p>No syllabus file uploaded.</p>
+        {% endif %}
+      </div>
+    </div>
+
+    {% if user.is_authenticated and user.user_type == 'admin' %}
+      <a href="{% url 'syllabus-update' syllabus.id %}" class="btn btn-primary">Edit</a>
+      <form action="{% url 'syllabus-delete' syllabus.id %}" method="post" class="d-inline-block" onsubmit="return confirm('Are you sure you want to delete this syllabus?');">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">Delete</button>
+      </form>
+    {% endif %}
+  
+  {% else %}
+    <p>No syllabus available for this subject.</p>
+    {% if user.is_authenticated and user.user_type == 'admin' %}
+      <a href="{% url 'syllabus-create' subject.id %}" class="btn btn-success">Create Syllabus</a>
+    {% endif %}
+  {% endif %}
+</div>
+{% endblock %}

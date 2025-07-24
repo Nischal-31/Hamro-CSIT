@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Past Questions - {{ subject.name }}{% endblock %}
+
+{% block content %}
+<section class="py-4 bg-light">
+  <div class="container">
+    <h2 class="mb-0">Past Questions / {{ subject.name }}</h2>
+  </div>
+</section>
+
+<div class="container py-4">
+  <h1 class="mb-4">Past Questions</h1>
+
+  {% if pastQuestions %}
+    <ul class="list-group">
+      {% for pq in pastQuestions %}
+        <li class="list-group-item d-flex justify-content-between align-items-center flex-wrap">
+          <div>
+            <h5 class="mb-1">{{ pq.title }} ({{ pq.year }})</h5>
+            {% if pq.description %}
+              <small class="text-muted">{{ pq.description }}</small><br>
+            {% endif %}
+            {% if pq.file %}
+              <a href="{{ pq.file }}" target="_blank" class="btn btn-sm btn-outline-secondary mt-1">Download</a>
+            {% else %}
+              <small class="text-muted">No file uploaded.</small>
+            {% endif %}
+          </div>
+
+          <div class="d-flex gap-2">
+            {% if user.is_authenticated and user.user_type == 'admin' %}
+              <a href="{% url 'pastQuestion-update' pq.id %}" class="btn btn-sm btn-primary">Edit</a>
+              <form action="{% url 'pastQuestion-delete' pq.id %}" method="post" onsubmit="return confirm('Are you sure you want to delete this past question?');" class="m-0">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+              </form>
+            {% endif %}
+          </div>
+        </li>
+      {% endfor %}
+    </ul>
+
+    {% if user.is_authenticated and user.user_type == 'admin' %}
+      <div class="mt-4">
+        <a href="{% url 'pastQuestion-create' subject.id %}" class="btn btn-success">Add New Past Question</a>
+      </div>
+    {% endif %}
+    
+  {% else %}
+    <p>No past questions found for this subject.</p>
+    {% if user.is_authenticated and user.user_type == 'admin' %}
+      <a href="{% url 'pastQuestion-create' subject.id %}" class="btn btn-success">Add New Past Question</a>
+    {% endif %}
+  {% endif %}
+</div>
+{% endblock %}
