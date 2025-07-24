@@ -20,3 +20,9 @@ def course_inner_view(request):
 
 def post_view(request):
     return render(request, 'post.html')
+
+def subscription_view(request):
+    return render(request, 'subscription.html')
+
+def checkout_view(request):
+    return render(request, 'checkout.html')

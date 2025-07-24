@@ -13,6 +13,9 @@ urlpatterns = [
     path('about/', views.about_view, name ='about'),
     path('course/', views.course_view, name ='course'),
     path('course-inner/', lambda request: render(request, 'course-inner.html'), name='course-inner'),
+    path('subscription/', views.subscription_view, name='subscription'),
+    path('checkout/', views.checkout_view, name='checkout'),
+
 
     
     path('api-token-auth/', auth_views.obtain_auth_token),
