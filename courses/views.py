@@ -420,7 +420,7 @@ def subject_detail_view(request, subject_id):
         'subject': subject,
         'notes': notes,
         'past_questions': past_questions,
-        'semester_id': semester_id,  # ✅ Pass semester_id to template
+        'semester_id': semester_id, # ✅ Pass semester_id to template
     })
 
 @login_required
@@ -545,6 +545,7 @@ def pastQuestion_list_view(request, subject_id):
         subject = Subject.objects.get(id=subject_id)
         semester_id = subject.semester_id
     except Subject.DoesNotExist:
+        subject = None
         semester_id = None  # fallback
     return render(request, 'pastQuestions/pastQuestion_list.html', {'pastQuestions': pastQuestions, 'semester_id': semester_id, 'subject_id': subject_id,'subject': subject})
 

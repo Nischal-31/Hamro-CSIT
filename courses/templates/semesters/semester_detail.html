@@ -28,8 +28,10 @@
     <p>This semester offers a range of exciting subjects to boost your academic journey.</p>
 
     <div class="mt-4 d-flex gap-3">
+      {% if user.is_authenticated and user.user_type == 'admin' %}
       <a href="{% url 'semester-update' semester_id=semester.id %}" class="btn btn-sm btn-warning">Update</a>
       <a href="{% url 'semester-delete' semester_id=semester.id %}" class="btn btn-sm btn-danger">Delete</a>
+      {% endif %}
       <a href="{% url 'semester-list' course_id %}" class="btn btn-sm btn-secondary">Back to List</a>
     </div>
   </div>
