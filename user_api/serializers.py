@@ -13,3 +13,10 @@ class UserSerializer(serializers.ModelSerializer):
         user.user_type = user_type
         user.save()
         return user
+    
+    
+class UserProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomUser
+        fields = ['id', 'username', 'email', 'first_name', 'last_name', 'profile_picture']  # Add your custom fields here
+

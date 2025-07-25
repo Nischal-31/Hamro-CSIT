@@ -65,3 +65,8 @@ class UserRegisterForm(UserCreationForm):
         if not user_type:
             user_type = 'normal'
         return user_type 
+
+class ProfileUpdateForm(forms.ModelForm):
+    class Meta:
+        model = CustomUser
+        fields = ['username', 'email', 'phone_no', 'first_name', 'last_name', 'profile_picture']

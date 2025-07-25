@@ -40,6 +40,7 @@ INSTALLED_APPS = [
 
     'crispy_forms',
     'crispy_bootstrap5',
+    'widget_tweaks',  # For additional form styling
     
     'django.contrib.sites',
     'allauth',
@@ -206,6 +207,7 @@ EMAIL_USE_TLS=True
 EMAIL_HOST_USER="xenobaka2@gmail.com"
 EMAIL_HOST_PASSWORD="qyypewdhzscwygze"
 
+LOGIN_URL = '/user/login/'
 LOGIN_REDIRECT_URL = 'index' 
 LOGOUT_REDIRECT_URL = 'index'  
 ACCOUNT_LOGOUT_REDIRECT_URL = 'account_login'

@@ -8,7 +8,9 @@ class CustomUser(AbstractUser):
     last_name = models.CharField(max_length=20)
     terms_agree = models.BooleanField(default=False)
     remember_me = models.BooleanField(default=False)
-    
+    profile_picture = models.ImageField(upload_to='profile_pics/', blank=True, null=True)
+
+
     # Define the roles for users
     USER_TYPE_CHOICES = [
         ('admin', 'Admin'),

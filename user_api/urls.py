@@ -11,4 +11,5 @@ urlpatterns = [
     path('user-create/', views.userCreate, name="user-create-api"),
     path('user-update/<str:pk>/', views.userUpdate, name="user-update-api"),
     path('user-delete/<str:pk>/', views.userDelete, name="user-delete-api"),
+    path('profile/', views.userProfile, name='user-profile-api'),
 ]

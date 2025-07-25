@@ -26,3 +26,4 @@ def subscription_view(request):
 
 def checkout_view(request):
     return render(request, 'checkout.html')
+

@@ -1,6 +1,6 @@
 from rest_framework import generics, permissions
 from user.models import CustomUser
-from .serializers import UserSerializer
+from .serializers import UserProfileSerializer, UserSerializer
 from .permissions import IsAdminUser, IsAdminOrReadOnly
 from django.shortcuts import render
 from django.http import JsonResponse
@@ -100,3 +100,18 @@ def userDelete(request, pk):
         return Response({'message': 'User successfully deleted!'}, status=status.HTTP_200_OK)
     except CustomUser.DoesNotExist:
         return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+
+
+@api_view(['GET', 'PUT', 'PATCH'])
+@permission_classes([IsAuthenticated])
+def userProfile(request):
+    user = request.user
+    if request.method == 'GET':
+        serializer = UserProfileSerializer(user)
+        return Response(serializer.data)
+
+    serializer = UserProfileSerializer(user, data=request.data, partial=True)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

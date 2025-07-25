@@ -9,7 +9,7 @@ from django.template.loader import render_to_string
 from user_api.permissions import IsAdminUser, IsAdminOrReadOnly
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import api_view,permission_classes
-
+from .forms import ProfileUpdateForm
 
 
 ########### register here ##################################### 
@@ -61,3 +61,15 @@ def Login(request):
 def logout_view(request):
     logout(request)
     return redirect('index') 
+
+@login_required
+def profile_view(request):
+    if request.method == 'POST':
+        form = ProfileUpdateForm(request.POST, request.FILES, instance=request.user)
+        if form.is_valid():
+            form.save()
+            return redirect('user-profile')  # redirect back to profile page
+    else:
+        form = ProfileUpdateForm(instance=request.user)
+
+    return render(request, 'user/profile.html', {'form': form})

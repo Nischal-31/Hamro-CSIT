@@ -1,3 +1,4 @@
+{% load static %}
 <nav>
 	<img src="/static/images/logo.svg" alt="">
 	<div class="navigation">
@@ -23,13 +24,38 @@
 				<a href="{% url 'subscription' %}">Subscription</a>
 			</li>
 			
+            
 
-			{% if user.is_authenticated %}
-				<li><a href="{% url 'logout' %}">LogOut</a></li>
-			{% else %}
-				<li><a href="{% url 'login' %}">Login</a></li>
-				<li><a href="{% url 'register' %}">Sign Up</a></li>
-			{% endif %}
+
+{% if user.is_authenticated %}
+  <li><a href="{% url 'logout' %}">LogOut</a></li>
+  
+  <li class="nav-item">
+    <a class="nav-link d-flex align-items-center" href="{% url 'user-profile' %}" style="gap: 0.5rem;">
+      {% if user.profile_picture %}
+        <img 
+          src="{{ user.profile_picture.url }}" 
+          alt="Profile Picture" 
+          style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover; border: 1px solid #ccc;"
+          loading="lazy"
+        >
+      {% else %}
+        <img 
+          src="{% static 'images/default_profile.jpg' %}" 
+          alt="Default Profile Picture" 
+          style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover; border: 1px solid #ccc;"
+          loading="lazy"
+        >
+      {% endif %}
+    </a>
+  </li>
+{% else %}
+  <li><a href="{% url 'login' %}">Login</a></li>
+  <li><a href="{% url 'register' %}">Sign Up</a></li>
+{% endif %}
+
+
+
 		</ul>
 		<img id="menu-btn" src="/static/images/menu.png" alt="">
 	</div>

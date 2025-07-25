@@ -39,6 +39,7 @@
     <!-- Right Column: Create New Blog & Categories -->
     <div class="col-lg-4 d-flex flex-column gap-4">
       
+      {% if user.is_authenticated %}
       <!-- Create New Blog Post -->
       <div class="card shadow-sm">
         <div class="card-header bg-primary text-white">
@@ -72,6 +73,7 @@
           </form>
         </div>
       </div>
+      {% endif %}
 
       <!-- Categories -->
       <div class="card shadow-sm">
