@@ -4,15 +4,17 @@
 
 {% block content %}
 
-   <!-- Home -->
-    
-  
-   <section id="home">
+<!-- Home -->
+
+
+<section id="home">
 	{% if user.is_authenticated %}
 	<h2>Welcome , {{ user.username }}! Empower Your Future with TechEduca</h2>
-    <p>
-    Unlock your potential with cutting-edge education tailored for tomorrow’s tech leaders. At TechEduca, we’re committed to helping you grow through hands-on learning, expert guidance, and real-world experience. Let’s shape your future—one line of code at a time.
-    </p>
+	<p>
+		Unlock your potential with cutting-edge education tailored for tomorrow’s tech leaders. At TechEduca, we’re
+		committed to helping you grow through hands-on learning, expert guidance, and real-world experience. Let’s shape
+		your future—one line of code at a time.
+	</p>
 
 	<div class="btn">
 		<a class="blue" href="#">Learn More</a>
@@ -20,17 +22,19 @@
 	</div>
 	{% else %}
 	<h2>Welcome, Guest ! Empower Your Future with TechEduca</h2>
-    <p>
-    Unlock your potential with cutting-edge education tailored for tomorrow’s tech leaders. At TechEduca, we’re committed to helping you grow through hands-on learning, expert guidance, and real-world experience. Let’s shape your future—one line of code at a time.
-    </p>
+	<p>
+		Unlock your potential with cutting-edge education tailored for tomorrow’s tech leaders. At TechEduca, we’re
+		committed to helping you grow through hands-on learning, expert guidance, and real-world experience. Let’s shape
+		your future—one line of code at a time.
+	</p>
 	<div class="btn">
 		<a class="blue" href="#">Learn More</a>
 		<a class="yellow" href="{% url 'course-list' %}">Visit Courses</a>
 	</div>
 	{% endif %}
-    </section>
-	
-	
+</section>
+
+
 
 <!-- Courses -->
 
@@ -231,9 +235,10 @@
 
 <!-- Profiles -->
 <section id="experts">
-	<h1>Community Experts</h1>
-	<p>Replenish man having thing gathering lights yielding shall you</p>
+	<h1>Developers</h1>
+	<p>Replenishing minds, gathering brilliance, and illuminating the path with ideas that yield innovation.</p>
 	<div class="expert-box">
+
 		<div class="profile">
 			<img src="/static/images/pro1.webp" alt="">
 			<h6>Ema Trnik</h6>
@@ -256,32 +261,9 @@
 
 			</div>
 		</div>
-		<div class="profile">
-			<img src="/static/images/pro3.webp" alt="">
-			<h6>Ema Trnik</h6>
-			<p>python & Algorithm Expert</p>
-			<div class="pro-links">
-				<i class="fab fa-facebook"></i>
-				<i class="fab fa-instagram"></i>
-				<i class="fab fa-linkedin-in"></i>
-
-			</div>
-		</div>
-		<div class="profile">
-			<img src="/static/images/pro4.webp" alt="">
-			<h6>Ema Trnik</h6>
-			<p>python & Algorithm Expert</p>
-			<div class="pro-links">
-				<i class="fab fa-facebook"></i>
-				<i class="fab fa-instagram"></i>
-				<i class="fab fa-linkedin-in"></i>
-
-			</div>
-		</div>
 	</div>
 </section>
 
 
 
 {% endblock %}
-

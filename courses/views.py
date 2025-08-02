@@ -391,6 +391,7 @@ def subject_detail_view(request, subject_id):
     subject_url = f"http://127.0.0.1:8000/syllabus_api/subject-detail/{subject_id}/"  # Adjust as per your API endpoint
     notes_url = f"http://127.0.0.1:8000/syllabus_api/note-list/{subject_id}"  # API for notes
     past_questions_url = f"http://127.0.0.1:8000/syllabus_api/pastQuestion-list/{subject_id}"  # API for past questions
+    syllabus_url = f"http://127.0.0.1:8000/syllabus_api/syllabus-detail-by-subject/{subject_id}/" #API for Syllabus
 
     # Fetch subject details
     subject_response = requests.get(subject_url, headers=headers)
@@ -404,6 +405,12 @@ def subject_detail_view(request, subject_id):
     if not semester_id:
         return render(request, 'subjects/subject_detail.html', {'error': 'Semester not found for this subject'})
     
+    # Fetch syllabus
+    syllabus = None
+    syllabus_response = requests.get(syllabus_url, headers=headers)
+    if syllabus_response.status_code == 200:
+        syllabus = syllabus_response.json()
+
     # Fetch notes
     notes_response = requests.get(notes_url)
     notes = notes_response.json() if notes_response.status_code == 200 else []
@@ -420,6 +427,7 @@ def subject_detail_view(request, subject_id):
         'subject': subject,
         'notes': notes,
         'past_questions': past_questions,
+        'syllabus':syllabus,
         'semester_id': semester_id, # ✅ Pass semester_id to template
     })
 
