@@ -9,18 +9,23 @@
   
    <section id="home">
 	{% if user.is_authenticated %}
-	<h2>Welcome {{ user.username }},Enhance Your Future WIth TechEduca</h2>
-	<p>amet consectetur adipisicing elit. Excepturi, voluptatum culpa esse ab quo est! Perspiciatis rerum ipsam amet saepe inventore. Reiciendis placeat magnam perferendis maiores architecto repellendus quae in?</p>
+	<h2>Welcome, {{ user.username }}! Empower Your Future with TechEduca</h2>
+    <p>
+    Unlock your potential with cutting-edge education tailored for tomorrow’s tech leaders. At TechEduca, we’re committed to helping you grow through hands-on learning, expert guidance, and real-world experience. Let’s shape your future—one line of code at a time.
+    </p>
+
 	<div class="btn">
 		<a class="blue" href="#">Learn More</a>
-		<a class="yellow" href="#">Visit Courses</a>
+		<a class="yellow" href="{% url 'course-list' %}">Visit Courses</a>
 	</div>
 	{% else %}
-	<h2>Welcome Guest,Enhance Your Future WIth TechEduca</h2>
-	<p>amet consectetur adipisicing elit. Excepturi, voluptatum culpa esse ab quo est! Perspiciatis rerum ipsam amet saepe inventore. Reiciendis placeat magnam perferendis maiores architecto repellendus quae in?</p>
+	<h2>Welcome, Guest ! Empower Your Future with TechEduca</h2>
+    <p>
+    Unlock your potential with cutting-edge education tailored for tomorrow’s tech leaders. At TechEduca, we’re committed to helping you grow through hands-on learning, expert guidance, and real-world experience. Let’s shape your future—one line of code at a time.
+    </p>
 	<div class="btn">
 		<a class="blue" href="#">Learn More</a>
-		<a class="yellow" href="#">Visit Courses</a>
+		<a class="yellow" href="{% url 'course-list' %}">Visit Courses</a>
 	</div>
 	{% endif %}
     </section>
@@ -28,6 +33,7 @@
 	
 
 <!-- Courses -->
+
 
 <section id="course">
 	<h1>Our Popular Courses</h1>
@@ -190,7 +196,7 @@
 
 
 
-<!-- Registration -->
+<!-- Registration 
 
 <section id="registration">
 	<div class="reminder">
@@ -221,6 +227,7 @@
 		</div>
 	</div>
 </section>
+-->
 
 <!-- Profiles -->
 <section id="experts">
